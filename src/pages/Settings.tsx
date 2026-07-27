@@ -15,8 +15,8 @@ const CURRENCY_PRESETS = [
   { symbol: 'C$', label: 'CAD (C$)' },
 ]
 
-const TABLES = ['users', 'products', 'menu_items', 'recipes', 'transactions', 'transaction_items', 'inventory_logs', 'expenses', 'sync_queue']
-const DELETE_ORDER = ['sync_queue', 'transaction_items', 'inventory_logs', 'expenses', 'recipes', 'transactions', 'menu_items', 'products', 'users']
+const TABLES = ['users', 'products', 'menu_items', 'recipes', 'transactions', 'transaction_items', 'inventory_logs', 'expenses', 'sync_queue', 'suppliers', 'supplier_products', 'waste_logs', 'discounts']
+const DELETE_ORDER = ['sync_queue', 'transaction_items', 'inventory_logs', 'waste_logs', 'supplier_products', 'expenses', 'recipes', 'discounts', 'transactions', 'suppliers', 'menu_items', 'products', 'users']
 
 export function SettingsPage() {
   const settings = useSettingsStore()
