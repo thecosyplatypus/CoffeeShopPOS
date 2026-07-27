@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { getAllRecipes, getRecipesForMenuItem, addRecipe, updateRecipe, deleteRecipe } from '@/services/inventory'
+import { getAllRecipes, getRecipesForMenuItem, addRecipe, updateRecipe, deleteRecipe, addMenuItem } from '@/services/inventory'
 import { getProductStockLevels } from '@/services/inventory'
 import type { Product } from '@/types'
 import type { RecipeRow } from '@/services/inventory'
@@ -33,6 +33,10 @@ export function RecipesPage() {
   const [error, setError] = useState('')
   const [mobileShowDetail, setMobileShowDetail] = useState(false)
   const addFormRef = useRef<HTMLDivElement>(null)
+  const [showAddItem, setShowAddItem] = useState(false)
+  const [newItemName, setNewItemName] = useState('')
+  const [newItemCategory, setNewItemCategory] = useState('')
+  const [newItemPrice, setNewItemPrice] = useState('')
 
   useEffect(() => {
     if (showAdd && addFormRef.current) {
@@ -107,6 +111,24 @@ export function RecipesPage() {
     refresh()
   }
 
+  const existingCategories = [...new Set(menuItems.map(m => m.category))]
+
+  const handleAddItem = () => {
+    if (!newItemName.trim() || !newItemCategory.trim() || !newItemPrice) return
+    const price = parseFloat(newItemPrice)
+    if (isNaN(price) || price < 0) return
+    const item = addMenuItem(newItemName.trim(), newItemCategory.trim(), price)
+    if (!item) return
+    setNewItemName('')
+    setNewItemCategory('')
+    setNewItemPrice('')
+    setShowAddItem(false)
+    setMenuItems(getAllRecipes())
+    setSelectedId(item.id)
+    setRecipes([])
+    setMobileShowDetail(true)
+  }
+
   const costPerServing = (r: RecipeRow) => {
     const product = products.find(p => p.id === r.productId)
     if (!product) return 0
@@ -119,6 +141,7 @@ export function RecipesPage() {
     : null
 
   return (
+    <>
     <div className="flex h-full">
       <div className={`${mobileShowDetail ? 'hidden' : 'flex'} md:flex md:w-80 w-full flex-col bg-white border-r border-gray-200`}>
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -128,9 +151,15 @@ export function RecipesPage() {
             </h2>
             <p className="text-gray-500 text-xs mt-1">{menuItems.length} menu items</p>
           </div>
-          <button onClick={() => setMobileShowDetail(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setShowAddItem(true)}
+              className="btn-primary flex items-center gap-1 text-xs md:text-sm px-2.5 py-1.5 md:px-3">
+              <Plus size={14} /> <span className="hidden sm:inline">New Item</span><span className="sm:hidden">New</span>
+            </button>
+            <button onClick={() => setMobileShowDetail(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
+              <X size={20} />
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-auto">
           {menuItems.map(mi => (
@@ -242,7 +271,7 @@ export function RecipesPage() {
                   ))}
 
                   {showAdd && (
-                    <div ref={addFormRef} className="card p-3 md:p-3 mt-2 border-coffee-200 bg-coffee-50/30">
+                    <div ref={addFormRef} className="card p-3 mt-2 border-coffee-200 bg-coffee-50/30">
                       <div className="text-xs text-gray-600 mb-2 font-medium">New Ingredient</div>
                       <div className="space-y-2">
                         <select value={addProductId} onChange={e => setAddProductId(e.target.value)}
@@ -301,5 +330,43 @@ export function RecipesPage() {
         )}
       </div>
     </div>
+
+    {showAddItem && (
+      <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+        <div className="card p-5 sm:p-6 w-full sm:w-96 shadow-modal sm:rounded-xl rounded-t-xl">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">New Menu Item</h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-gray-700 text-sm block mb-1 font-medium">Name</label>
+              <input type="text" value={newItemName} onChange={e => setNewItemName(e.target.value)}
+                placeholder="e.g. Iced Latte, Croissant"
+                className="input-base" autoFocus />
+            </div>
+            <div>
+              <label className="text-gray-700 text-sm block mb-1 font-medium">Category</label>
+              <input type="text" value={newItemCategory} onChange={e => setNewItemCategory(e.target.value)}
+                placeholder="e.g. Coffee, Pastry, Tea"
+                className="input-base" list="recipe-categories" />
+              <datalist id="recipe-categories">
+                {existingCategories.map(c => <option key={c} value={c} />)}
+              </datalist>
+            </div>
+            <div>
+              <label className="text-gray-700 text-sm block mb-1 font-medium">Sell Price</label>
+              <input type="number" step="0.01" min="0" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)}
+                placeholder="0.00"
+                className="input-base" />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button onClick={() => { setShowAddItem(false); setNewItemName(''); setNewItemCategory(''); setNewItemPrice('') }}
+              className="btn-secondary flex-1">Cancel</button>
+            <button onClick={handleAddItem} disabled={!newItemName.trim() || !newItemCategory.trim() || !newItemPrice}
+              className="btn-primary flex-1">Create</button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
