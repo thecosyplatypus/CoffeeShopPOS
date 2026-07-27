@@ -113,22 +113,22 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <div className="flex gap-2 items-center">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Reports</h1>
+        <div className="flex flex-wrap gap-2 items-center">
           <button onClick={() => setPeriod('7')}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${period === '7' ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>7 Days</button>
+            className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors ${period === '7' ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>7 Days</button>
           <button onClick={() => setPeriod('30')}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${period === '30' ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>30 Days</button>
+            className={`px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors ${period === '30' ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>30 Days</button>
           <button onClick={handleExportCSV}
-            className="btn-primary flex items-center gap-1.5">
+            className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm">
             <Download size={14} /> Export CSV
           </button>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto flex-nowrap">
         {([
           { key: 'sales' as const, label: 'Sales' },
           { key: 'expenses' as const, label: 'Expenses' },
@@ -136,26 +136,26 @@ export function ReportsPage() {
           { key: 'trends' as const, label: 'Trends' },
         ]).map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${tab === t.key ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{t.label}</button>
+            className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${tab === t.key ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{t.label}</button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+        <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Sales</p>
-          <p className="text-gray-900 text-2xl font-bold mt-1">{formatCurrency(totalSales)}</p>
+          <p className="text-gray-900 text-lg md:text-2xl font-bold mt-1">{formatCurrency(totalSales)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Expenses</p>
-          <p className="text-red-600 text-2xl font-bold mt-1">{formatCurrency(totalExpenses)}</p>
+          <p className="text-red-600 text-lg md:text-2xl font-bold mt-1">{formatCurrency(totalExpenses)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Net Profit</p>
-          <p className={`text-2xl font-bold mt-1 ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(netProfit)}</p>
+          <p className={`text-lg md:text-2xl font-bold mt-1 ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(netProfit)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Profit Margin</p>
-          <p className={`text-2xl font-bold mt-1 ${profitMargin !== null && profitMargin >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <p className={`text-lg md:text-2xl font-bold mt-1 ${profitMargin !== null && profitMargin >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {profitMargin !== null ? `${profitMargin.toFixed(1)}%` : '—'}
           </p>
         </div>
@@ -163,11 +163,11 @@ export function ReportsPage() {
 
       {tab === 'sales' && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="card p-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <div className="card p-4 md:p-5">
               <h2 className="text-lg font-semibold text-gray-900 mb-1">Daily Sales</h2>
               <p className="text-gray-500 text-sm mb-4">Avg: {formatCurrency(avgDaily)}/day</p>
-              <div className="h-64">
+              <div className="h-48 md:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -180,10 +180,10 @@ export function ReportsPage() {
               </div>
             </div>
 
-            <div className="card p-5">
+            <div className="card p-4 md:p-5">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Sales by Category</h2>
               {categoryData.length > 0 ? (
-                <div className="h-64">
+                <div className="h-48 md:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie data={categoryData} dataKey="total" nameKey="category" cx="50%" cy="50%" outerRadius={80}
@@ -198,7 +198,7 @@ export function ReportsPage() {
             </div>
           </div>
 
-          <div className="card p-5">
+          <div className="card p-4 md:p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Profit Margin Analysis</h2>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -233,7 +233,7 @@ export function ReportsPage() {
       )}
 
       {tab === 'menu' && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center gap-3 mb-4">
             <BarChart3 size={20} className="text-gray-400" />
             <h2 className="text-lg font-semibold text-gray-900">Menu Engineering Matrix</h2>
@@ -280,12 +280,12 @@ export function ReportsPage() {
       )}
 
       {tab === 'trends' && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">30-Day Sales Trend</h2>
           {trendData.length === 0 ? (
             <p className="text-gray-400 text-sm">No trend data available</p>
           ) : (
-            <div className="h-80">
+            <div className="h-64 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -307,17 +307,17 @@ export function ReportsPage() {
       )}
 
       {tab === 'expenses' && (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Expenses</h2>
             <button onClick={() => setShowAddExpense(true)}
-              className="btn-primary flex items-center gap-1.5">
+              className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm">
               <Plus size={16} /> Add Expense
             </button>
           </div>
 
           {expensesByCategory.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
               {expensesByCategory.map(ec => (
                 <div key={ec.category} className="card p-3">
                   <p className="text-gray-500 text-xs font-medium">{ec.category}</p>
@@ -333,44 +333,66 @@ export function ReportsPage() {
               <p className="text-sm">No expenses recorded for this period</p>
             </div>
           ) : (
-            <div className="card overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-500 text-sm">
-                    <th className="text-left p-4 font-medium">Date</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                    <th className="text-left p-4 font-medium">Category</th>
-                    <th className="text-right p-4 font-medium">Amount</th>
-                    <th className="text-right p-4 font-medium"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expenses.map(e => (
-                    <tr key={e.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="p-4 text-gray-500 text-sm">{e.date}</td>
-                      <td className="p-4 text-gray-900">{e.description}</td>
-                      <td className="p-4">
-                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{e.category}</span>
-                      </td>
-                      <td className="p-4 text-right text-red-600 font-medium">{formatCurrency(e.amount)}</td>
-                      <td className="p-4 text-right">
-                        <button onClick={() => handleDeleteExpense(e.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
+            <>
+              <div className="md:hidden space-y-3">
+                {expenses.map(e => (
+                  <div key={e.id} className="card p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-gray-900 font-medium truncate">{e.description}</p>
+                        <p className="text-gray-500 text-xs mt-0.5">{e.date}</p>
+                      </div>
+                      <p className="text-red-600 font-semibold whitespace-nowrap">{formatCurrency(e.amount)}</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{e.category}</span>
+                      <button onClick={() => handleDeleteExpense(e.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block card overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 text-sm">
+                      <th className="text-left p-4 font-medium">Date</th>
+                      <th className="text-left p-4 font-medium">Description</th>
+                      <th className="text-left p-4 font-medium">Category</th>
+                      <th className="text-right p-4 font-medium">Amount</th>
+                      <th className="text-right p-4 font-medium"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {expenses.map(e => (
+                      <tr key={e.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-4 text-gray-500 text-sm">{e.date}</td>
+                        <td className="p-4 text-gray-900">{e.description}</td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{e.category}</span>
+                        </td>
+                        <td className="p-4 text-right text-red-600 font-medium">{formatCurrency(e.amount)}</td>
+                        <td className="p-4 text-right">
+                          <button onClick={() => handleDeleteExpense(e.id)}
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
 
       {showAddExpense && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-96 shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-6 w-full sm:w-96 rounded-t-xl sm:rounded-xl shadow-modal">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Expense</h2>
             <div className="space-y-3">
               <div>

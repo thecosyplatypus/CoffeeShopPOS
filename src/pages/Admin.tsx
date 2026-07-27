@@ -127,9 +127,9 @@ export function AdminPage() {
 
   if (loadError) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Administration</h1>
-        <div className="card p-6 border-red-200 bg-red-50">
+      <div className="p-4 md:p-6">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Administration</h1>
+        <div className="card p-4 md:p-5 border-red-200 bg-red-50">
           <p className="text-red-700 font-semibold mb-2">Failed to load admin data</p>
           <p className="text-red-600 text-sm">{loadError}</p>
           <button onClick={loadData} className="btn-primary mt-4">Retry</button>
@@ -139,10 +139,10 @@ export function AdminPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <h1 className="text-xl md:text-2xl font-bold text-gray-900">Administration</h1>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto flex-nowrap">
         {([
           { key: 'staff' as const, label: 'Staff', icon: Users },
           { key: 'suppliers' as const, label: 'Suppliers', icon: Truck },
@@ -150,14 +150,14 @@ export function AdminPage() {
           { key: 'waste' as const, label: 'Waste Log', icon: Trash2 },
         ]).map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${tab === t.key ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap ${tab === t.key ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
             <t.icon size={14} /> {t.label}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center gap-3 mb-4">
             <Database size={20} className="text-gray-400" />
             <h2 className="text-lg font-semibold text-gray-900">Database Stats</h2>
@@ -177,7 +177,7 @@ export function AdminPage() {
           </div>
         </div>
 
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center gap-3 mb-4">
             <Server size={20} className="text-gray-400" />
             <h2 className="text-lg font-semibold text-gray-900">Cloud Sync</h2>
@@ -210,7 +210,7 @@ export function AdminPage() {
       </div>
 
       {tab === 'staff' && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Users size={20} className="text-gray-400" />
@@ -223,7 +223,8 @@ export function AdminPage() {
               </button>
             )}
           </div>
-          <div className="overflow-x-auto">
+
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 text-gray-500 text-sm">
@@ -245,11 +246,23 @@ export function AdminPage() {
               </tbody>
             </table>
           </div>
+
+          <div className="md:hidden space-y-3">
+            {users.map((u) => (
+              <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div>
+                  <p className="text-gray-900 font-medium">{u.name}</p>
+                  <span className={`text-xs font-semibold uppercase px-2 py-1 rounded-full ${u.role === 'owner' ? 'bg-purple-50 text-purple-700 ring-1 ring-purple-200' : u.role === 'manager' ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200'}`}>{u.role}</span>
+                  <p className="text-gray-500 text-xs mt-1">{u.createdAt}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {tab === 'suppliers' && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Truck size={20} className="text-gray-400" />
@@ -265,7 +278,7 @@ export function AdminPage() {
           ) : (
             <div className="space-y-3">
               {suppliers.map(s => (
-                <div key={s.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div key={s.id} className="flex items-center justify-between p-3 md:p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div>
                     <p className="text-gray-900 font-medium">{s.name}</p>
                     <p className="text-gray-500 text-xs">{s.contactName || ''} {s.phone || ''} {s.email || ''}</p>
@@ -282,7 +295,7 @@ export function AdminPage() {
       )}
 
       {tab === 'discounts' && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Tag size={20} className="text-gray-400" />
@@ -296,48 +309,70 @@ export function AdminPage() {
           {discounts.length === 0 ? (
             <p className="text-gray-400 text-sm">No discounts created yet</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-500 text-sm">
-                    <th className="text-left p-3 font-medium">Code</th>
-                    <th className="text-left p-3 font-medium">Type</th>
-                    <th className="text-right p-3 font-medium">Value</th>
-                    <th className="text-right p-3 font-medium">Min Order</th>
-                    <th className="text-right p-3 font-medium">Uses</th>
-                    <th className="text-right p-3 font-medium">Expires</th>
-                    <th className="text-right p-3 font-medium"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {discounts.map(d => (
-                    <tr key={d.id} className="border-b border-gray-100">
-                      <td className="p-3 text-gray-900 font-mono font-bold">{d.code}</td>
-                      <td className="p-3">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${d.type === 'percent' ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'}`}>{d.type}</span>
-                      </td>
-                      <td className="p-3 text-right text-gray-700">{d.type === 'percent' ? `${d.value}%` : `$${d.value.toFixed(2)}`}</td>
-                      <td className="p-3 text-right text-gray-700">{d.minOrder > 0 ? `$${d.minOrder.toFixed(2)}` : '—'}</td>
-                      <td className="p-3 text-right text-gray-700">{d.uses}{d.maxUses ? `/${d.maxUses}` : ''}</td>
-                      <td className="p-3 text-right text-gray-500 text-xs">{d.expiresAt || '—'}</td>
-                      <td className="p-3 text-right">
-                        <button onClick={() => { deleteDiscount(d.id); loadData() }}
-                          className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 text-sm">
+                      <th className="text-left p-3 font-medium">Code</th>
+                      <th className="text-left p-3 font-medium">Type</th>
+                      <th className="text-right p-3 font-medium">Value</th>
+                      <th className="text-right p-3 font-medium">Min Order</th>
+                      <th className="text-right p-3 font-medium">Uses</th>
+                      <th className="text-right p-3 font-medium">Expires</th>
+                      <th className="text-right p-3 font-medium"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {discounts.map(d => (
+                      <tr key={d.id} className="border-b border-gray-100">
+                        <td className="p-3 text-gray-900 font-mono font-bold">{d.code}</td>
+                        <td className="p-3">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${d.type === 'percent' ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'}`}>{d.type}</span>
+                        </td>
+                        <td className="p-3 text-right text-gray-700">{d.type === 'percent' ? `${d.value}%` : `$${d.value.toFixed(2)}`}</td>
+                        <td className="p-3 text-right text-gray-700">{d.minOrder > 0 ? `$${d.minOrder.toFixed(2)}` : '—'}</td>
+                        <td className="p-3 text-right text-gray-700">{d.uses}{d.maxUses ? `/${d.maxUses}` : ''}</td>
+                        <td className="p-3 text-right text-gray-500 text-xs">{d.expiresAt || '—'}</td>
+                        <td className="p-3 text-right">
+                          <button onClick={() => { deleteDiscount(d.id); loadData() }}
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="md:hidden space-y-3">
+                {discounts.map(d => (
+                  <div key={d.id} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-900 font-mono font-bold">{d.code}</span>
+                      <button onClick={() => { deleteDiscount(d.id); loadData() }}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${d.type === 'percent' ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'}`}>{d.type}</span>
+                      <span className="text-sm text-gray-700 font-medium">{d.type === 'percent' ? `${d.value}%` : `$${d.value.toFixed(2)}`}</span>
+                      <span className="text-xs text-gray-500">{d.uses}{d.maxUses ? `/${d.maxUses}` : ''} uses</span>
+                      <span className="text-xs text-gray-500">{d.expiresAt || 'No expiry'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}
 
       {tab === 'waste' && (
-        <div className="space-y-6">
-          <div className="card p-5">
+        <div className="space-y-4 md:space-y-6">
+          <div className="card p-4 md:p-5">
             <div className="flex items-center gap-3 mb-4">
               <Package size={20} className="text-gray-400" />
               <h2 className="text-lg font-semibold text-gray-900">Log Waste</h2>
@@ -361,41 +396,56 @@ export function AdminPage() {
             </div>
           </div>
 
-          <div className="card p-5">
+          <div className="card p-4 md:p-5">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Waste History</h2>
             {wasteLogs.length === 0 ? (
               <p className="text-gray-400 text-sm">No waste logged yet</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-500 text-sm">
-                      <th className="text-left p-3 font-medium">Date</th>
-                      <th className="text-left p-3 font-medium">Product</th>
-                      <th className="text-right p-3 font-medium">Quantity</th>
-                      <th className="text-left p-3 font-medium">Reason</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {wasteLogs.slice(0, 20).map(w => (
-                      <tr key={w.id} className="border-b border-gray-100">
-                        <td className="p-3 text-gray-500 text-sm">{w.createdAt}</td>
-                        <td className="p-3 text-gray-900 font-medium">{w.productName}</td>
-                        <td className="p-3 text-right text-red-500">{w.quantity}</td>
-                        <td className="p-3 text-gray-700">{w.reason}</td>
+              <>
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-gray-500 text-sm">
+                        <th className="text-left p-3 font-medium">Date</th>
+                        <th className="text-left p-3 font-medium">Product</th>
+                        <th className="text-right p-3 font-medium">Quantity</th>
+                        <th className="text-left p-3 font-medium">Reason</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {wasteLogs.slice(0, 20).map(w => (
+                        <tr key={w.id} className="border-b border-gray-100">
+                          <td className="p-3 text-gray-500 text-sm">{w.createdAt}</td>
+                          <td className="p-3 text-gray-900 font-medium">{w.productName}</td>
+                          <td className="p-3 text-right text-red-500">{w.quantity}</td>
+                          <td className="p-3 text-gray-700">{w.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="md:hidden space-y-3">
+                  {wasteLogs.slice(0, 20).map(w => (
+                    <div key={w.id} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-gray-900 font-medium">{w.productName}</span>
+                        <span className="text-red-500 font-medium text-sm">-{w.quantity}</span>
+                      </div>
+                      <p className="text-gray-700 text-sm">{w.reason}</p>
+                      <p className="text-gray-500 text-xs mt-1">{w.createdAt}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
       )}
 
       {showAddUser && isOwner && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-96 shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-6 w-full sm:w-96 shadow-modal rounded-t-xl sm:rounded-xl">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Staff Member</h2>
             <div className="space-y-3">
               <input type="text" placeholder="Name" value={newName} onChange={(e) => setNewName(e.target.value)}
@@ -420,8 +470,8 @@ export function AdminPage() {
       )}
 
       {showAddSupplier && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-96 shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-6 w-full sm:w-96 shadow-modal rounded-t-xl sm:rounded-xl">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Supplier</h2>
             <div className="space-y-3">
               <input type="text" placeholder="Supplier Name" value={supName} onChange={e => setSupName(e.target.value)}
@@ -446,8 +496,8 @@ export function AdminPage() {
       )}
 
       {showAddDiscount && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-96 shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-6 w-full sm:w-96 shadow-modal rounded-t-xl sm:rounded-xl">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Create Discount</h2>
             <div className="space-y-3">
               <input type="text" placeholder="Code (e.g. SUMMER20)" value={dscCode} onChange={e => setDscCode(e.target.value.toUpperCase())}

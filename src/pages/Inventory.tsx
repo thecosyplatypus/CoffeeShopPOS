@@ -95,20 +95,20 @@ export function InventoryPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Inventory</h1>
         <div className="flex gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)}
-              className="input-base pl-9 w-64" />
+            <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)}
+              className="input-base pl-9 w-full sm:w-64" />
           </div>
           <button
             onClick={() => setShowAddProduct(true)}
-            className="btn-primary flex items-center gap-1.5"
+            className="btn-primary flex items-center gap-1.5 shrink-0"
           >
-            <Plus size={16} /> Add Product
+            <Plus size={16} /> <span className="hidden sm:inline">Add Product</span><span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
@@ -120,7 +120,8 @@ export function InventoryPage() {
         </div>
       )}
 
-      <div className="card overflow-hidden">
+      {/* Desktop table */}
+      <div className="card overflow-hidden hidden md:block">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200 text-gray-500 text-sm">
@@ -171,9 +172,52 @@ export function InventoryPage() {
         </table>
       </div>
 
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-2">
+        {filtered.map((p) => {
+          const margin = profit(p)
+          const isLow = p.stockLevel <= p.minStockLevel
+          return (
+            <div key={p.id} className={`card p-3 ${isLow ? 'border-amber-200 bg-amber-50/30' : ''}`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  {isLow && <AlertTriangle size={14} className="text-amber-500" />}
+                  <span className="text-gray-900 font-medium text-sm">{p.name}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => setSelectedProduct(p)}
+                    className="btn-secondary px-2.5 py-1 text-xs">Adjust</button>
+                  <button onClick={() => handleRemove(p)}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <p className="text-gray-400">Stock</p>
+                  <p className={`font-medium ${isLow ? 'text-amber-600' : 'text-gray-700'}`}>{p.stockLevel} {p.unit}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Cost</p>
+                  <p className="text-gray-700">{formatCurrency(p.costPrice)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Sell</p>
+                  <p className="text-gray-700">{p.sellPrice !== null ? formatCurrency(p.sellPrice) : '—'}</p>
+                </div>
+              </div>
+              {margin !== null && (
+                <p className="text-xs mt-1.5">Margin: <span className={margin > 50 ? 'text-emerald-600 font-medium' : 'text-amber-600 font-medium'}>{margin.toFixed(1)}%</span></p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-96 shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-5 sm:p-6 w-full sm:w-96 shadow-modal sm:rounded-xl rounded-t-xl">
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Adjust Stock</h2>
             <p className="text-gray-500 text-sm mb-4">{selectedProduct.name} ({selectedProduct.stockLevel} {selectedProduct.unit})</p>
             <div className="space-y-3">
@@ -221,8 +265,8 @@ export function InventoryPage() {
       )}
 
       {showAddProduct && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 w-[28rem] shadow-modal">
+        <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50">
+          <div className="card p-5 sm:p-6 w-full sm:w-[28rem] shadow-modal sm:rounded-xl rounded-t-xl">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Product</h2>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">

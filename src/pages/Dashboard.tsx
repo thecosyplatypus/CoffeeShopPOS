@@ -64,36 +64,36 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <div className="flex gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+        <div className="flex gap-1.5">
           {[7, 14, 30].map(d => (
             <button key={d} onClick={() => setDays(d)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${days === d ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{d} Days</button>
+              className={`px-2.5 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors ${days === d ? 'bg-coffee-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{d}d</button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="card p-5">
+          <div key={stat.label} className="card p-3 md:p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{stat.label}</p>
-                <p className="text-gray-900 text-2xl font-bold mt-1">{stat.value}</p>
+                <p className="text-gray-500 text-xs md:text-sm">{stat.label}</p>
+                <p className="text-gray-900 text-lg md:text-2xl font-bold mt-0.5 md:mt-1">{stat.value}</p>
               </div>
-              <div className={`w-12 h-12 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                <stat.icon size={24} className={stat.color} />
+              <div className={`w-9 h-9 md:w-12 md:h-12 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                <stat.icon size={20} className={stat.color} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Best Sellers ({days}d)</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="card p-4 md:p-5">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Best Sellers ({days}d)</h2>
           {bestSellers.length === 0 ? (
             <p className="text-gray-400 text-sm">No sales data yet</p>
           ) : (
