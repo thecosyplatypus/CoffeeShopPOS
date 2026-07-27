@@ -129,30 +129,28 @@ export function AdminPage() {
 
   const isOwner = currentUser?.role === 'owner'
 
-  const handleLoadDemoData = () => {
+  const handleLoadDemoData = async () => {
     if (!currentUser) return
     if (!confirm('This will add 1 year of fake transactions, expenses, and stock adjustments. Continue?')) return
     setDemoLoading(true)
     setDemoResult('')
-    setTimeout(() => {
-      try {
-        const result = seedDemoData(currentUser.id)
-        const startDate = new Date()
-        startDate.setDate(startDate.getDate() - 364)
-        const startStr = startDate.toISOString().slice(0, 10)
-        const endStr = new Date().toISOString().slice(0, 10)
-        const cogs = getTotalCOGS(startStr, endStr)
-        const netProfit = result.totalRevenue - result.totalExpenses - cogs
-        const margin = result.totalRevenue > 0 ? ((netProfit / result.totalRevenue) * 100).toFixed(1) : '0'
-        setDemoResult(
-          `${result.transactions} transactions | Revenue: $${result.totalRevenue.toLocaleString()} | COGS: $${cogs.toLocaleString()} | Expenses: $${result.totalExpenses.toLocaleString()} | Net Profit: $${netProfit.toLocaleString()} (${margin}%)`
-        )
-        loadData()
-      } catch (err: any) {
-        setDemoResult('Error: ' + (err.message || 'Unknown error'))
-      }
-      setDemoLoading(false)
-    }, 100)
+    try {
+      const result = await seedDemoData(currentUser.id)
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - 364)
+      const startStr = startDate.toISOString().slice(0, 10)
+      const endStr = new Date().toISOString().slice(0, 10)
+      const cogs = getTotalCOGS(startStr, endStr)
+      const netProfit = result.totalRevenue - result.totalExpenses - cogs
+      const margin = result.totalRevenue > 0 ? ((netProfit / result.totalRevenue) * 100).toFixed(1) : '0'
+      setDemoResult(
+        `${result.transactions} transactions | Revenue: $${result.totalRevenue.toLocaleString()} | COGS: $${cogs.toLocaleString()} | Expenses: $${result.totalExpenses.toLocaleString()} | Net Profit: $${netProfit.toLocaleString()} (${margin}%)`
+      )
+      loadData()
+    } catch (err: any) {
+      setDemoResult('Error: ' + (err.message || 'Unknown error'))
+    }
+    setDemoLoading(false)
   }
 
   if (loadError) {

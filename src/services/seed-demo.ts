@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import { query, run, get } from './db'
+import { query, run, get, setBulkMode, forceSave } from './db'
 
 const MENU_ITEMS = [
   { id: 'item_espresso', name: 'Espresso', category: 'Coffee', sellPrice: 3.50, weight: 8 },
@@ -199,7 +199,7 @@ function ensureDemoProductsAndMenu(): void {
   }
 }
 
-export function seedDemoData(userId: string): { transactions: number; expenses: number; adjustments: number; totalRevenue: number; totalExpenses: number } {
+export async function seedDemoData(userId: string): Promise<{ transactions: number; expenses: number; adjustments: number; totalRevenue: number; totalExpenses: number }> {
   const existing = get<{ count: number }>('SELECT COUNT(*) as count FROM transactions')
   if (existing && existing.count > 0) {
     return { transactions: 0, expenses: 0, adjustments: 0, totalRevenue: 0, totalExpenses: 0 }
@@ -221,6 +221,9 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
     const existing = get<{ stockLevel: number }>('SELECT stock_level FROM products WHERE id = ?', [p.id])
     stockLevels[p.id] = existing?.stockLevel ?? 20000
   }
+
+  setBulkMode(true)
+  run('BEGIN TRANSACTION')
 
   for (let dayOffset = 0; dayOffset < 365; dayOffset++) {
     const currentDate = new Date(startDate)
@@ -384,6 +387,10 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
     const finalStock = stockLevels[p.id] || 0
     run('UPDATE products SET stock_level = ? WHERE id = ?', [Math.max(0, finalStock), p.id])
   }
+
+  run('COMMIT')
+  setBulkMode(false)
+  await forceSave()
 
   console.log(`[Seed] Created ${txCount} transactions, ${expCount} expenses, ${adjCount} stock adjustments`)
   return { transactions: txCount, expenses: expCount, adjustments: adjCount, totalRevenue: Math.round(totalRevenue * 100) / 100, totalExpenses: Math.round(totalExpenses * 100) / 100 }

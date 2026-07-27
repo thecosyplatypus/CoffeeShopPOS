@@ -4,6 +4,7 @@ import { SCHEMA_SQL } from '@/db/schema'
 let _db: SqlJsDatabase | null = null
 let _saveTimer: ReturnType<typeof setTimeout> | null = null
 let _dbDirty = false
+let _bulkMode = false
 
 function snakeToCamel(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {}
@@ -56,6 +57,7 @@ const SQL_PROMISE = (async () => {
 })()
 
 function scheduleSave() {
+  if (_bulkMode) return
   _dbDirty = true
   if (_saveTimer) return
   _saveTimer = setTimeout(() => {
@@ -145,6 +147,14 @@ function get<T = any>(sql: string, params?: any[]): T | null {
 }
 
 export const dbOps = { query, run, get }
+
+export function setBulkMode(on: boolean): void {
+  _bulkMode = on
+  if (on && _saveTimer) { clearTimeout(_saveTimer); _saveTimer = null }
+  if (!on && _dbDirty) scheduleSave()
+}
+
+export async function forceSave(): Promise<void> { await saveNow() }
 
 export async function seedDatabase(): Promise<void> {
   const existing = get<{ count: number }>('SELECT COUNT(*) as count FROM menu_items')

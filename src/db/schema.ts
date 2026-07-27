@@ -138,13 +138,18 @@ CREATE TABLE IF NOT EXISTS discounts (
 );
 
 CREATE INDEX IF NOT EXISTS idx_transactions_sync ON transactions(sync_status);
-CREATE INDEX IF NOT EXISTS idx_inventory_logs_product ON inventory_logs(product_id);
-CREATE INDEX IF NOT EXISTS idx_inventory_logs_created ON inventory_logs(created_at);
-CREATE INDEX IF NOT EXISTS idx_recipes_menu_item ON recipes(menu_item_id);
-CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status);
-CREATE INDEX IF NOT EXISTS idx_products_sync ON products(sync_status);
 CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_items_txn ON transaction_items(transaction_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_items_menu ON transaction_items(menu_item_id);
+CREATE INDEX IF NOT EXISTS idx_recipes_menu_item ON recipes(menu_item_id);
+CREATE INDEX IF NOT EXISTS idx_recipes_product ON recipes(product_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_logs_product ON inventory_logs(product_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_logs_created ON inventory_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_inventory_logs_type ON inventory_logs(type);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status);
+CREATE INDEX IF NOT EXISTS idx_products_sync ON products(sync_status);
 CREATE INDEX IF NOT EXISTS idx_supplier_products_supplier ON supplier_products(supplier_id);
 CREATE INDEX IF NOT EXISTS idx_waste_logs_product ON waste_logs(product_id);
 CREATE INDEX IF NOT EXISTS idx_waste_logs_created ON waste_logs(created_at);

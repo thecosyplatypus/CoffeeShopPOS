@@ -40,7 +40,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-    const interval = setInterval(() => loadDashboardData(), 15000)
+    const interval = setInterval(() => loadDashboardData(), 30000)
     return () => clearInterval(interval)
   }, [days])
 
