@@ -56,7 +56,7 @@
   "main": "electron/main.cjs",
   "build": {
     "appId": "com.coffeeshop.pos",
-    "productName": "CoffeeShop POS",
+    "productName": "Coffee Shop POS",
     "files": [
       "dist/**/*",
       "electron/**/*"

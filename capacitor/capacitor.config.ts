@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.coffeeshop.pos',
-  appName: 'CoffeeShop POS',
+  appName: 'Coffee Shop',
   webDir: '../dist',
   server: { androidScheme: 'https' },
   plugins: {
