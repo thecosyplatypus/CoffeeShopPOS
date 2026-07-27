@@ -5,8 +5,9 @@ import { configureSync, processSync, getPendingSyncItems } from '@/services/sync
 import { addSupplier, getSuppliers, deleteSupplier, addDiscount, getDiscounts, deleteDiscount, logWaste, getWasteLogs, addSupplierProduct, getSupplierProducts, getProductStockLevels } from '@/services/inventory'
 import { useAppStore } from '@/store'
 import { getCurrentUser } from '@/services/auth'
+import { seedDemoData } from '@/services/seed-demo'
 import type { User, UserRole, Supplier, Discount, Product } from '@/types'
-import { Users, Database, RefreshCw, Server, Key, UserPlus, Truck, Tag, Trash2, Package } from 'lucide-react'
+import { Users, Database, RefreshCw, Server, Key, UserPlus, Truck, Tag, Trash2, Package, Beaker } from 'lucide-react'
 
 export function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -46,6 +47,8 @@ export function AdminPage() {
   const [wasteLogs, setWasteLogs] = useState<any[]>([])
 
   const [loadError, setLoadError] = useState('')
+  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoResult, setDemoResult] = useState('')
 
   const loadData = () => {
     try {
@@ -125,6 +128,23 @@ export function AdminPage() {
 
   const isOwner = currentUser?.role === 'owner'
 
+  const handleLoadDemoData = () => {
+    if (!currentUser) return
+    if (!confirm('This will add 1 year of fake transactions, expenses, and stock adjustments. Continue?')) return
+    setDemoLoading(true)
+    setDemoResult('')
+    setTimeout(() => {
+      try {
+        const result = seedDemoData(currentUser.id)
+        setDemoResult(`Created ${result.transactions} transactions, ${result.expenses} expenses, ${result.adjustments} stock adjustments`)
+        loadData()
+      } catch (err: any) {
+        setDemoResult('Error: ' + (err.message || 'Unknown error'))
+      }
+      setDemoLoading(false)
+    }, 100)
+  }
+
   if (loadError) {
     return (
       <div className="p-4 md:p-6">
@@ -174,6 +194,13 @@ export function AdminPage() {
                 <p className="text-gray-500 text-xs mt-1">{s.label}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <button onClick={handleLoadDemoData} disabled={demoLoading || stats.transactions > 0}
+              className="btn-primary w-full flex items-center justify-center gap-2 text-sm disabled:bg-gray-200 disabled:text-gray-400">
+              <Beaker size={16} /> {demoLoading ? 'Loading...' : stats.transactions > 0 ? 'Demo Data Already Loaded' : 'Load 1 Year Demo Data'}
+            </button>
+            {demoResult && <p className="text-xs text-gray-600 mt-2 text-center">{demoResult}</p>}
           </div>
         </div>
 
