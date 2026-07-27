@@ -6,6 +6,7 @@ import { addSupplier, getSuppliers, deleteSupplier, addDiscount, getDiscounts, d
 import { useAppStore } from '@/store'
 import { getCurrentUser } from '@/services/auth'
 import { seedDemoData } from '@/services/seed-demo'
+import { getTotalCOGS } from '@/services/inventory'
 import type { User, UserRole, Supplier, Discount, Product } from '@/types'
 import { Users, Database, RefreshCw, Server, Key, UserPlus, Truck, Tag, Trash2, Package, Beaker } from 'lucide-react'
 
@@ -136,7 +137,16 @@ export function AdminPage() {
     setTimeout(() => {
       try {
         const result = seedDemoData(currentUser.id)
-        setDemoResult(`Created ${result.transactions} transactions, ${result.expenses} expenses, ${result.adjustments} stock adjustments`)
+        const startDate = new Date()
+        startDate.setDate(startDate.getDate() - 364)
+        const startStr = startDate.toISOString().slice(0, 10)
+        const endStr = new Date().toISOString().slice(0, 10)
+        const cogs = getTotalCOGS(startStr, endStr)
+        const netProfit = result.totalRevenue - result.totalExpenses - cogs
+        const margin = result.totalRevenue > 0 ? ((netProfit / result.totalRevenue) * 100).toFixed(1) : '0'
+        setDemoResult(
+          `${result.transactions} transactions | Revenue: $${result.totalRevenue.toLocaleString()} | COGS: $${cogs.toLocaleString()} | Expenses: $${result.totalExpenses.toLocaleString()} | Net Profit: $${netProfit.toLocaleString()} (${margin}%)`
+        )
         loadData()
       } catch (err: any) {
         setDemoResult('Error: ' + (err.message || 'Unknown error'))

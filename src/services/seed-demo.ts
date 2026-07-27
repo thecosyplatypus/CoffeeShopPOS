@@ -96,15 +96,17 @@ function getMonthMultiplier(month: number): number {
   return mults[month]
 }
 
-export function seedDemoData(userId: string): { transactions: number; expenses: number; adjustments: number } {
+export function seedDemoData(userId: string): { transactions: number; expenses: number; adjustments: number; totalRevenue: number; totalExpenses: number } {
   const existing = get<{ count: number }>('SELECT COUNT(*) as count FROM transactions')
   if (existing && existing.count > 0) {
-    return { transactions: 0, expenses: 0, adjustments: 0 }
+    return { transactions: 0, expenses: 0, adjustments: 0, totalRevenue: 0, totalExpenses: 0 }
   }
 
   let txCount = 0
   let expCount = 0
   let adjCount = 0
+  let totalRevenue = 0
+  let totalExpenses = 0
 
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - 364)
@@ -209,6 +211,7 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
           }
         }
         txCount++
+        totalRevenue += totalAmount
       }
     }
 
@@ -223,6 +226,7 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
             [expId, tmpl.desc, amount, tmpl.category, dateStr, userId]
           )
           expCount++
+          totalExpenses += amount
         }
       }
     }
@@ -238,6 +242,7 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
             [expId, tmpl.desc, amount, tmpl.category, dateStr, userId]
           )
           expCount++
+          totalExpenses += amount
         }
       }
     }
@@ -276,5 +281,5 @@ export function seedDemoData(userId: string): { transactions: number; expenses: 
   }
 
   console.log(`[Seed] Created ${txCount} transactions, ${expCount} expenses, ${adjCount} stock adjustments`)
-  return { transactions: txCount, expenses: expCount, adjustments: adjCount }
+  return { transactions: txCount, expenses: expCount, adjustments: adjCount, totalRevenue: Math.round(totalRevenue * 100) / 100, totalExpenses: Math.round(totalExpenses * 100) / 100 }
 }
