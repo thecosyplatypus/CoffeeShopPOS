@@ -98,7 +98,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
 
   release:
-    needs: [build-windows, build-mac]
+    needs: [build-windows, build-mac, build-android]
     if: always()
     runs-on: ubuntu-latest
     steps:
