@@ -2,41 +2,116 @@ import { v4 as uuid } from 'uuid'
 import { query, run, get } from './db'
 
 const MENU_ITEMS = [
-  { id: 'item_espresso', weight: 8 },
-  { id: 'item_macchiato', weight: 5 },
-  { id: 'item_americano', weight: 12 },
-  { id: 'item_flat_white', weight: 10 },
-  { id: 'item_cappuccino', weight: 14 },
-  { id: 'item_latte', weight: 18 },
-  { id: 'item_mocha', weight: 8 },
-  { id: 'item_pit_mocha', weight: 4 },
-  { id: 'item_mocha_shiver', weight: 5 },
-  { id: 'item_drink_dark', weight: 4 },
-  { id: 'item_drink_milk', weight: 3 },
-  { id: 'item_drink_white', weight: 3 },
-  { id: 'item_cacao_long', weight: 2 },
-  { id: 'item_cacao_cap', weight: 2 },
-  { id: 'item_cacao_latte', weight: 2 },
-  { id: 'item_dark_shiver', weight: 3 },
-  { id: 'item_white_shiver', weight: 2 },
+  { id: 'item_espresso', name: 'Espresso', category: 'Coffee', sellPrice: 3.50, weight: 8 },
+  { id: 'item_macchiato', name: 'Macchiato', category: 'Coffee', sellPrice: 4.00, weight: 5 },
+  { id: 'item_americano', name: 'Americano', category: 'Coffee', sellPrice: 3.75, weight: 12 },
+  { id: 'item_flat_white', name: 'Flat White', category: 'Coffee', sellPrice: 4.50, weight: 10 },
+  { id: 'item_cappuccino', name: 'Cappuccino', category: 'Coffee', sellPrice: 4.50, weight: 14 },
+  { id: 'item_latte', name: 'Latte', category: 'Coffee', sellPrice: 4.75, weight: 18 },
+  { id: 'item_mocha', name: 'Mocha', category: 'Coffee', sellPrice: 5.25, weight: 8 },
+  { id: 'item_pit_mocha', name: 'Peanut Mocha', category: 'Specialty', sellPrice: 5.50, weight: 4 },
+  { id: 'item_mocha_shiver', name: 'Mocha Shiver', category: 'Specialty', sellPrice: 5.75, weight: 5 },
+  { id: 'item_drink_dark', name: 'Dark Chocolate', category: 'Hot Chocolate', sellPrice: 4.50, weight: 4 },
+  { id: 'item_drink_milk', name: 'Milk Chocolate', category: 'Hot Chocolate', sellPrice: 4.25, weight: 3 },
+  { id: 'item_drink_white', name: 'White Chocolate', category: 'Hot Chocolate', sellPrice: 4.50, weight: 3 },
+  { id: 'item_cacao_long', name: 'Cacao Long', category: 'Specialty', sellPrice: 5.00, weight: 2 },
+  { id: 'item_cacao_cap', name: 'Cacao Cappuccino', category: 'Specialty', sellPrice: 5.25, weight: 2 },
+  { id: 'item_cacao_latte', name: 'Cacao Latte', category: 'Specialty', sellPrice: 5.50, weight: 2 },
+  { id: 'item_dark_shiver', name: 'Dark Shiver', category: 'Specialty', sellPrice: 5.75, weight: 3 },
+  { id: 'item_white_shiver', name: 'White Shiver', category: 'Specialty', sellPrice: 5.50, weight: 2 },
 ]
 
 const PRODUCTS = [
-  { id: 'prod_beans', name: 'Espresso Beans', unit: 'g', refillKg: 5, costPerKg: 50 },
-  { id: 'prod_milk', name: 'Whole Milk', unit: 'ml', refillL: 10, costPerL: 2 },
-  { id: 'prod_oat_milk', name: 'Oat Milk', unit: 'ml', refillL: 10, costPerL: 4 },
-  { id: 'prod_dark_choc', name: 'Dark Chocolate 71%', unit: 'g', refillKg: 2, costPerKg: 20 },
-  { id: 'prod_milk_choc', name: 'Milk Chocolate 40%', unit: 'g', refillKg: 2, costPerKg: 18 },
-  { id: 'prod_white_choc', name: 'White Chocolate 38%', unit: 'g', refillKg: 2, costPerKg: 16 },
-  { id: 'prod_cacao', name: 'Cacao Paste', unit: 'g', refillKg: 1, costPerKg: 40 },
-  { id: 'prod_syrup_van', name: 'Vanilla Syrup', unit: 'ml', refillL: 5, costPerL: 30 },
-  { id: 'prod_syrup_caram', name: 'Caramel Syrup', unit: 'ml', refillL: 5, costPerL: 30 },
-  { id: 'prod_syrup_haz', name: 'Hazelnut Syrup', unit: 'ml', refillL: 5, costPerL: 30 },
-  { id: 'prod_cream', name: 'Whipping Cream', unit: 'ml', refillL: 5, costPerL: 8 },
-  { id: 'prod_ice', name: 'Ice', unit: 'g', refillKg: 20, costPerKg: 1 },
-  { id: 'prod_choc_shav', name: 'Chocolate Shavings', unit: 'g', refillKg: 1, costPerKg: 30 },
-  { id: 'prod_cups', name: 'Paper Cups', unit: 'pcs', refillQty: 500, costPerUnit: 0.05 },
-  { id: 'prod_lids', name: 'Cup Lids', unit: 'pcs', refillQty: 500, costPerUnit: 0.02 },
+  { id: 'prod_beans', name: 'Espresso Beans', unit: 'g', costPrice: 0.05, refillKg: 5, costPerKg: 50 },
+  { id: 'prod_milk', name: 'Whole Milk', unit: 'ml', costPrice: 0.002, refillL: 10, costPerL: 2 },
+  { id: 'prod_oat_milk', name: 'Oat Milk', unit: 'ml', costPrice: 0.004, refillL: 10, costPerL: 4 },
+  { id: 'prod_dark_choc', name: 'Dark Chocolate 71%', unit: 'g', costPrice: 0.02, refillKg: 2, costPerKg: 20 },
+  { id: 'prod_milk_choc', name: 'Milk Chocolate 40%', unit: 'g', costPrice: 0.018, refillKg: 2, costPerKg: 18 },
+  { id: 'prod_white_choc', name: 'White Chocolate 38%', unit: 'g', costPrice: 0.016, refillKg: 2, costPerKg: 16 },
+  { id: 'prod_cacao', name: 'Cacao Paste', unit: 'g', costPrice: 0.04, refillKg: 1, costPerKg: 40 },
+  { id: 'prod_syrup_van', name: 'Vanilla Syrup', unit: 'ml', costPrice: 0.03, refillL: 5, costPerL: 30 },
+  { id: 'prod_syrup_caram', name: 'Caramel Syrup', unit: 'ml', costPrice: 0.03, refillL: 5, costPerL: 30 },
+  { id: 'prod_syrup_haz', name: 'Hazelnut Syrup', unit: 'ml', costPrice: 0.03, refillL: 5, costPerL: 30 },
+  { id: 'prod_cream', name: 'Whipping Cream', unit: 'ml', costPrice: 0.008, refillL: 5, costPerL: 8 },
+  { id: 'prod_ice', name: 'Ice', unit: 'g', costPrice: 0.001, refillKg: 20, costPerKg: 1 },
+  { id: 'prod_choc_shav', name: 'Chocolate Shavings', unit: 'g', costPrice: 0.03, refillKg: 1, costPerKg: 30 },
+  { id: 'prod_cups', name: 'Paper Cups', unit: 'pcs', costPrice: 0.05, refillQty: 500, costPerUnit: 0.05 },
+  { id: 'prod_lids', name: 'Cup Lids', unit: 'pcs', costPrice: 0.02, refillQty: 500, costPerUnit: 0.02 },
+]
+
+const RECIPES: { menuItemId: string; productId: string; quantityUsed: number; unit: string; wastePercent: number }[] = [
+  { menuItemId: 'item_espresso', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_espresso', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_espresso', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_macchiato', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_macchiato', productId: 'prod_milk', quantityUsed: 30, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_macchiato', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_macchiato', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_americano', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_americano', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_americano', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_flat_white', productId: 'prod_beans', quantityUsed: 20, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_flat_white', productId: 'prod_milk', quantityUsed: 120, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_flat_white', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_flat_white', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cappuccino', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_cappuccino', productId: 'prod_milk', quantityUsed: 150, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_cappuccino', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cappuccino', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_latte', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_latte', productId: 'prod_milk', quantityUsed: 200, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_latte', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_latte', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_mocha', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_mocha', productId: 'prod_milk', quantityUsed: 200, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_mocha', productId: 'prod_dark_choc', quantityUsed: 15, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_mocha', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_mocha', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_pit_mocha', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_pit_mocha', productId: 'prod_milk', quantityUsed: 200, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_pit_mocha', productId: 'prod_dark_choc', quantityUsed: 15, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_pit_mocha', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_pit_mocha', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_beans', quantityUsed: 18, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_milk', quantityUsed: 150, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_dark_choc', quantityUsed: 15, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_ice', quantityUsed: 100, unit: 'g', wastePercent: 0 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_mocha_shiver', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_dark', productId: 'prod_milk', quantityUsed: 250, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_drink_dark', productId: 'prod_dark_choc', quantityUsed: 25, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_drink_dark', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_dark', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_milk', productId: 'prod_milk', quantityUsed: 250, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_drink_milk', productId: 'prod_milk_choc', quantityUsed: 25, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_drink_milk', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_milk', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_white', productId: 'prod_milk', quantityUsed: 250, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_drink_white', productId: 'prod_white_choc', quantityUsed: 25, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_drink_white', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_drink_white', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_long', productId: 'prod_cacao', quantityUsed: 20, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_cacao_long', productId: 'prod_milk', quantityUsed: 200, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_cacao_long', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_long', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_cap', productId: 'prod_cacao', quantityUsed: 20, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_cacao_cap', productId: 'prod_milk', quantityUsed: 150, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_cacao_cap', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_cap', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_latte', productId: 'prod_cacao', quantityUsed: 20, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_cacao_latte', productId: 'prod_milk', quantityUsed: 200, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_cacao_latte', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_cacao_latte', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_dark_shiver', productId: 'prod_dark_choc', quantityUsed: 30, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_dark_shiver', productId: 'prod_milk', quantityUsed: 150, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_dark_shiver', productId: 'prod_ice', quantityUsed: 120, unit: 'g', wastePercent: 0 },
+  { menuItemId: 'item_dark_shiver', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_dark_shiver', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_white_shiver', productId: 'prod_white_choc', quantityUsed: 25, unit: 'g', wastePercent: 2 },
+  { menuItemId: 'item_white_shiver', productId: 'prod_milk', quantityUsed: 150, unit: 'ml', wastePercent: 3 },
+  { menuItemId: 'item_white_shiver', productId: 'prod_ice', quantityUsed: 120, unit: 'g', wastePercent: 0 },
+  { menuItemId: 'item_white_shiver', productId: 'prod_cups', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
+  { menuItemId: 'item_white_shiver', productId: 'prod_lids', quantityUsed: 1, unit: 'pcs', wastePercent: 0 },
 ]
 
 const EXPENSE_TEMPLATES = [
@@ -44,10 +119,7 @@ const EXPENSE_TEMPLATES = [
   { desc: 'Electricity Bill', category: 'Utilities', min: 350, max: 550, frequency: 'monthly' as const },
   { desc: 'Internet & Phone', category: 'Utilities', min: 80, max: 120, frequency: 'monthly' as const },
   { desc: 'Water Bill', category: 'Utilities', min: 100, max: 180, frequency: 'monthly' as const },
-  { desc: 'Staff Wages - Week 1', category: 'Staff', min: 2200, max: 2800, frequency: 'weekly' as const },
-  { desc: 'Staff Wages - Week 2', category: 'Staff', min: 2200, max: 2800, frequency: 'weekly' as const },
-  { desc: 'Staff Wages - Week 3', category: 'Staff', min: 2200, max: 2800, frequency: 'weekly' as const },
-  { desc: 'Staff Wages - Week 4', category: 'Staff', min: 2200, max: 2800, frequency: 'weekly' as const },
+  { desc: 'Weekly Staff Wages', category: 'Staff', min: 1800, max: 2400, frequency: 'weekly' as const },
   { desc: 'Cleaning Supplies', category: 'Cleaning', min: 80, max: 150, frequency: 'monthly' as const },
   { desc: 'Marketing & Social Media', category: 'Marketing', min: 200, max: 500, frequency: 'monthly' as const },
   { desc: 'Equipment Maintenance', category: 'Maintenance', min: 150, max: 400, frequency: 'monthly' as const },
@@ -96,11 +168,44 @@ function getMonthMultiplier(month: number): number {
   return mults[month]
 }
 
+function ensureDemoProductsAndMenu(): void {
+  for (const p of PRODUCTS) {
+    const exists = get<{ id: string }>('SELECT id FROM products WHERE id = ?', [p.id])
+    if (!exists) {
+      const refill = 'refillKg' in p ? (p as any).refillKg * 1000 : 'refillL' in p ? (p as any).refillL * 1000 : (p as any).refillQty
+      run(
+        'INSERT OR IGNORE INTO products (id, name, unit, cost_price, sell_price, stock_level, min_stock_level, bulk_quantity, bulk_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [p.id, p.name, p.unit, p.costPrice, null, refill, refill * 0.2, refill, 'refillKg' in p ? (p as any).costPerKg * (p as any).refillKg : 'refillL' in p ? (p as any).costPerL * (p as any).refillL : (p as any).refillQty * p.costPrice]
+      )
+    }
+  }
+  for (const mi of MENU_ITEMS) {
+    const exists = get<{ id: string }>('SELECT id FROM menu_items WHERE id = ?', [mi.id])
+    if (!exists) {
+      run(
+        'INSERT OR IGNORE INTO menu_items (id, name, category, sell_price) VALUES (?, ?, ?, ?)',
+        [mi.id, mi.name, mi.category, mi.sellPrice]
+      )
+    }
+  }
+  for (const r of RECIPES) {
+    const exists = get<{ id: string }>('SELECT id FROM recipes WHERE menu_item_id = ? AND product_id = ?', [r.menuItemId, r.productId])
+    if (!exists) {
+      run(
+        'INSERT OR IGNORE INTO recipes (id, menu_item_id, product_id, quantity_used, unit, waste_percent) VALUES (?, ?, ?, ?, ?, ?)',
+        [`rec_${uuid().slice(0, 8)}`, r.menuItemId, r.productId, r.quantityUsed, r.unit, r.wastePercent]
+      )
+    }
+  }
+}
+
 export function seedDemoData(userId: string): { transactions: number; expenses: number; adjustments: number; totalRevenue: number; totalExpenses: number } {
   const existing = get<{ count: number }>('SELECT COUNT(*) as count FROM transactions')
   if (existing && existing.count > 0) {
     return { transactions: 0, expenses: 0, adjustments: 0, totalRevenue: 0, totalExpenses: 0 }
   }
+
+  ensureDemoProductsAndMenu()
 
   let txCount = 0
   let expCount = 0
