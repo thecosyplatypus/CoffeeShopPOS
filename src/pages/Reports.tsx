@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { query, get } from '@/services/db'
-import { addExpense, getExpenses, deleteExpense, getExpensesByCategory, getMenuEngineering, exportTransactionsCSV, getSalesTrend } from '@/services/inventory'
+import { addExpense, getExpenses, deleteExpense, getExpensesByCategory, getMenuEngineering, exportTransactionsCSV, getSalesTrend, getCOGSByDay, getTotalCOGS } from '@/services/inventory'
 import { getCurrentUser } from '@/services/auth'
 import { formatCurrency } from '@/utils/format'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
@@ -31,6 +31,8 @@ export function ReportsPage() {
 
   const [menuEngineering, setMenuEngineering] = useState<any[]>([])
   const [trendData, setTrendData] = useState<any[]>([])
+  const [cogsByDay, setCogsByDay] = useState<{ date: string; cogs: number }[]>([])
+  const [totalCOGS, setTotalCOGS] = useState(0)
 
   const days = parseInt(period)
   const startDate = format(subDays(new Date(), days), 'yyyy-MM-dd')
@@ -57,6 +59,8 @@ export function ReportsPage() {
 
     setMenuEngineering(getMenuEngineering())
     setTrendData(getSalesTrend(30).map(t => ({ date: format(new Date(t.date), 'MMM dd'), sales: t.sales, transactions: t.transactions })))
+    setCogsByDay(getCOGSByDay(startDate, endDate))
+    setTotalCOGS(getTotalCOGS(startDate, endDate))
   }
 
   const loadExpenses = () => {
@@ -72,7 +76,8 @@ export function ReportsPage() {
   const totalSales = salesData.reduce((s, d) => s + d.sales, 0)
   const avgDaily = totalSales / salesData.filter(d => d.sales > 0).length || 0
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
-  const netProfit = totalSales - totalExpenses
+  const totalAllExpenses = totalExpenses + totalCOGS
+  const netProfit = totalSales - totalAllExpenses
   const profitMargin = totalSales > 0 ? (netProfit / totalSales) * 100 : null
 
   const handleAddExpense = () => {
@@ -140,7 +145,7 @@ export function ReportsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-4">
         <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Sales</p>
           <p className="text-gray-900 text-lg md:text-2xl font-bold mt-1">{formatCurrency(totalSales)}</p>
@@ -148,6 +153,10 @@ export function ReportsPage() {
         <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Expenses</p>
           <p className="text-red-600 text-lg md:text-2xl font-bold mt-1">{formatCurrency(totalExpenses)}</p>
+        </div>
+        <div className="card p-3 md:p-4">
+          <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Ingredients</p>
+          <p className="text-orange-600 text-lg md:text-2xl font-bold mt-1">{formatCurrency(totalCOGS)}</p>
         </div>
         <div className="card p-3 md:p-4">
           <p className="text-gray-500 text-xs uppercase tracking-wide font-medium">Net Profit</p>
@@ -315,6 +324,36 @@ export function ReportsPage() {
               <Plus size={16} /> Add Expense
             </button>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="card p-4 md:p-5">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Ingredient Costs (COGS)</h3>
+              <p className="text-orange-600 text-2xl font-bold">{formatCurrency(totalCOGS)}</p>
+              <p className="text-gray-500 text-xs mt-1">Cost of all recipes sold this period</p>
+            </div>
+            <div className="card p-4 md:p-5">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Manual Expenses</h3>
+              <p className="text-red-600 text-2xl font-bold">{formatCurrency(totalExpenses)}</p>
+              <p className="text-gray-500 text-xs mt-1">Rent, utilities, supplies, etc.</p>
+            </div>
+          </div>
+
+          {cogsByDay.some(d => d.cogs > 0) && (
+            <div className="card p-4 md:p-5">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Daily Ingredient Costs</h3>
+              <div className="h-48 md:h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={cogsByDay.map(d => ({ date: format(new Date(d.date), 'MMM dd'), cogs: d.cogs }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="date" stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                    <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                    <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} formatter={(v: number) => formatCurrency(v)} />
+                    <Bar dataKey="cogs" fill="#ea580c" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
 
           {expensesByCategory.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
