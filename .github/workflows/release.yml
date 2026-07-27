@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -98,10 +98,12 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
 
   release:
-    needs: [build-windows, build-mac, build-android]
+    needs: [build-windows, build-mac]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: artifacts/
           merge-multiple: true
