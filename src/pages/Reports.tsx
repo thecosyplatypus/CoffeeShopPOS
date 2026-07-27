@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { query, get } from '@/services/db'
-import { addExpense, getExpenses, deleteExpense, getExpensesByCategory, getMenuEngineering, exportTransactionsCSV, getSalesTrend, getCOGSByDay, getTotalCOGS } from '@/services/inventory'
+import { addExpense, getExpenses, deleteExpense, getExpensesByCategory, getMenuEngineering, exportTransactionsCSV, getSalesTrend, getCOGSByDay, getTotalCOGS, getMonthlySales, getMonthlyExpenses, getMonthlyCOGS } from '@/services/inventory'
 import { getCurrentUser } from '@/services/auth'
 import { formatCurrency } from '@/utils/format'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
 import { format, subDays } from 'date-fns'
-import { Plus, Trash2, Receipt, Download, BarChart3 } from 'lucide-react'
+import { Plus, Trash2, Receipt, Download, BarChart3, Calendar } from 'lucide-react'
 import type { Expense } from '@/types'
 
 const COLORS = ['#b56722', '#d4852e', '#e09d4a', '#97501f', '#e9bd7c', '#7c4121']
@@ -19,7 +19,7 @@ export function ReportsPage() {
   const [salesData, setSalesData] = useState<any[]>([])
   const [categoryData, setCategoryData] = useState<any[]>([])
   const [period, setPeriod] = useState<'7' | '30'>('7')
-  const [tab, setTab] = useState<'sales' | 'expenses' | 'menu' | 'trends'>('sales')
+  const [tab, setTab] = useState<'sales' | 'expenses' | 'menu' | 'trends' | 'monthly'>('sales')
 
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [expensesByCategory, setExpensesByCategory] = useState<{ category: string; total: number }[]>([])
@@ -33,6 +33,10 @@ export function ReportsPage() {
   const [trendData, setTrendData] = useState<any[]>([])
   const [cogsByDay, setCogsByDay] = useState<{ date: string; cogs: number }[]>([])
   const [totalCOGS, setTotalCOGS] = useState(0)
+
+  const [monthlySales, setMonthlySales] = useState<{ month: string; label: string; sales: number; transactions: number }[]>([])
+  const [monthlyExpenses, setMonthlyExpenses] = useState<{ month: string; expenses: number }[]>([])
+  const [monthlyCOGS, setMonthlyCOGS] = useState<{ month: string; cogs: number }[]>([])
 
   const days = parseInt(period)
   const startDate = format(subDays(new Date(), days), 'yyyy-MM-dd')
@@ -61,6 +65,10 @@ export function ReportsPage() {
     setTrendData(getSalesTrend(30).map(t => ({ date: format(new Date(t.date), 'MMM dd'), sales: t.sales, transactions: t.transactions })))
     setCogsByDay(getCOGSByDay(startDate, endDate))
     setTotalCOGS(getTotalCOGS(startDate, endDate))
+
+    setMonthlySales(getMonthlySales(12))
+    setMonthlyExpenses(getMonthlyExpenses(12))
+    setMonthlyCOGS(getMonthlyCOGS(12))
   }
 
   const loadExpenses = () => {
@@ -136,6 +144,7 @@ export function ReportsPage() {
       <div className="flex gap-2 overflow-x-auto flex-nowrap">
         {([
           { key: 'sales' as const, label: 'Sales' },
+          { key: 'monthly' as const, label: 'Monthly' },
           { key: 'expenses' as const, label: 'Expenses' },
           { key: 'menu' as const, label: 'Menu Engineering' },
           { key: 'trends' as const, label: 'Trends' },
@@ -240,6 +249,117 @@ export function ReportsPage() {
           </div>
         </>
       )}
+
+      {tab === 'monthly' && (() => {
+        const monthlyData = monthlySales.map(s => {
+          const exp = monthlyExpenses.find(e => e.month === s.month)
+          const cogs = monthlyCOGS.find(c => c.month === s.month)
+          const expenses = exp?.expenses || 0
+          const ingredientCost = cogs?.cogs || 0
+          const totalExpenses = expenses + ingredientCost
+          const netProfit = s.sales - totalExpenses
+          const margin = s.sales > 0 ? (netProfit / s.sales) * 100 : null
+          return { ...s, expenses, ingredientCost, totalExpenses, netProfit, margin }
+        }).reverse()
+        const totalRev = monthlyData.reduce((s, m) => s + m.sales, 0)
+        const totalExp = monthlyData.reduce((s, m) => s + m.totalExpenses, 0)
+        const totalProfit = monthlyData.reduce((s, m) => s + m.netProfit, 0)
+        return (
+          <div className="space-y-4 md:space-y-6">
+            <div className="card p-4 md:p-5">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><Calendar size={18} className="text-gray-400" /> 12-Month Overview</h2>
+              {monthlyData.length === 0 || monthlyData.every(m => m.sales === 0) ? (
+                <p className="text-gray-400 text-sm">No monthly data available</p>
+              ) : (
+                <div className="h-56 md:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="label" stroke="#9ca3af" tick={{ fontSize: 10 }} />
+                      <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                      <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} formatter={(v: number) => formatCurrency(v)} />
+                      <Bar dataKey="sales" name="Revenue" fill="#b56722" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="totalExpenses" name="Total Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="netProfit" name="Net Profit" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="flex gap-4 mt-3 justify-center text-sm">
+                <span className="text-gray-500 flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[#b56722]" /> Revenue</span>
+                <span className="text-gray-500 flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-500" /> Expenses</span>
+                <span className="text-gray-500 flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-emerald-500" /> Net Profit</span>
+              </div>
+            </div>
+
+            <div className="card overflow-hidden">
+              <div className="p-4 md:p-5 pb-0">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Monthly Breakdown</h2>
+                <p className="text-gray-500 text-sm mb-4">Revenue, expenses, and profit by month</p>
+              </div>
+              <div className="md:hidden px-4 md:px-5 pb-4 space-y-3">
+                {monthlyData.map(m => (
+                  <div key={m.month} className="card p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-gray-900 font-medium">{m.label}</p>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${m.netProfit >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{m.margin !== null ? `${m.margin.toFixed(1)}%` : '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div><span className="text-gray-500">Revenue</span><p className="text-gray-900 font-medium">{formatCurrency(m.sales)}</p></div>
+                      <div><span className="text-gray-500">Ingredients</span><p className="text-orange-600 font-medium">{formatCurrency(m.ingredientCost)}</p></div>
+                      <div><span className="text-gray-500">Expenses</span><p className="text-red-600 font-medium">{formatCurrency(m.expenses)}</p></div>
+                      <div><span className="text-gray-500">Net Profit</span><p className={`font-medium ${m.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(m.netProfit)}</p></div>
+                    </div>
+                    <p className="text-gray-400 text-xs mt-2">{m.transactions} transactions</p>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 text-sm">
+                      <th className="text-left p-4 font-medium">Month</th>
+                      <th className="text-right p-4 font-medium">Revenue</th>
+                      <th className="text-right p-4 font-medium">Ingredients</th>
+                      <th className="text-right p-4 font-medium">Expenses</th>
+                      <th className="text-right p-4 font-medium">Total Costs</th>
+                      <th className="text-right p-4 font-medium">Net Profit</th>
+                      <th className="text-right p-4 font-medium">Margin</th>
+                      <th className="text-right p-4 font-medium">Txns</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {monthlyData.map(m => (
+                      <tr key={m.month} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-4 text-gray-900 font-medium">{m.label}</td>
+                        <td className="p-4 text-right text-gray-900">{formatCurrency(m.sales)}</td>
+                        <td className="p-4 text-right text-orange-600">{formatCurrency(m.ingredientCost)}</td>
+                        <td className="p-4 text-right text-red-600">{formatCurrency(m.expenses)}</td>
+                        <td className="p-4 text-right text-gray-700">{formatCurrency(m.totalExpenses)}</td>
+                        <td className={`p-4 text-right font-medium ${m.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(m.netProfit)}</td>
+                        <td className={`p-4 text-right font-medium ${m.margin !== null && m.margin >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{m.margin !== null ? `${m.margin.toFixed(1)}%` : '—'}</td>
+                        <td className="p-4 text-right text-gray-500">{m.transactions}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-300 font-semibold text-sm">
+                      <td className="p-4 text-gray-900">Total</td>
+                      <td className="p-4 text-right text-gray-900">{formatCurrency(totalRev)}</td>
+                      <td className="p-4 text-right text-orange-600">{formatCurrency(monthlyData.reduce((s, m) => s + m.ingredientCost, 0))}</td>
+                      <td className="p-4 text-right text-red-600">{formatCurrency(monthlyData.reduce((s, m) => s + m.expenses, 0))}</td>
+                      <td className="p-4 text-right text-gray-700">{formatCurrency(totalExp)}</td>
+                      <td className={`p-4 text-right ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(totalProfit)}</td>
+                      <td className={`p-4 text-right ${totalRev > 0 ? ((totalProfit / totalRev) * 100 >= 0 ? 'text-emerald-600' : 'text-red-600') : 'text-gray-400'}`}>{totalRev > 0 ? `${((totalProfit / totalRev) * 100).toFixed(1)}%` : '—'}</td>
+                      <td className="p-4 text-right text-gray-500">{monthlyData.reduce((s, m) => s + m.transactions, 0)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {tab === 'menu' && (
         <div className="card p-4 md:p-5">

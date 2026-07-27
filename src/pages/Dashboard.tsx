@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getEODReport, getLowStockProducts, getStockAlerts, getBestSellers, getPeakHours, getSalesByEmployee, getSalesByPaymentMethod, getWasteLogs } from '@/services/inventory'
+import { getEODReport, getLowStockProducts, getStockAlerts, getBestSellers, getPeakHours, getSalesByEmployee, getSalesByPaymentMethod, getWasteLogs, getMonthlySales } from '@/services/inventory'
 import { formatCurrency } from '@/utils/format'
 import { format } from 'date-fns'
 import { TrendingUp, ShoppingCart, AlertTriangle, Package, Users, Clock, CreditCard, Trash2 } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export function DashboardPage() {
   const [report, setReport] = useState<any>(null)
@@ -13,6 +14,7 @@ export function DashboardPage() {
   const [employeeSales, setEmployeeSales] = useState<any[]>([])
   const [paymentMethods, setPaymentMethods] = useState<any[]>([])
   const [wasteLogs, setWasteLogs] = useState<any[]>([])
+  const [monthlySales, setMonthlySales] = useState<any[]>([])
   const [days, setDays] = useState(7)
 
   const [error, setError] = useState('')
@@ -28,6 +30,7 @@ export function DashboardPage() {
       setEmployeeSales(getSalesByEmployee(days))
       setPaymentMethods(getSalesByPaymentMethod(days))
       setWasteLogs(getWasteLogs())
+      setMonthlySales(getMonthlySales(12).map(m => ({ month: m.label, sales: m.sales, transactions: m.transactions })))
       setError('')
     } catch (err: any) {
       console.error('[Dashboard] Failed to load data:', err)
@@ -228,6 +231,24 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {monthlySales.length > 0 && monthlySales.some(m => m.sales > 0) && (
+        <div className="card p-4 md:p-5">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-1">12-Month Revenue</h2>
+          <p className="text-gray-500 text-sm mb-4">Total: {formatCurrency(monthlySales.reduce((s, m) => s + m.sales, 0))}</p>
+          <div className="h-48 md:h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlySales}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="month" stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} formatter={(v: number) => formatCurrency(v)} />
+                <Bar dataKey="sales" fill="#b56722" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

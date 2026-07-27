@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import { query, run, get } from './db'
 import { convert } from '@/utils/units'
+import { format } from 'date-fns'
 import type { Product, MenuItem, InventoryLog, Expense, Supplier, SupplierProduct, WasteLog, Discount } from '@/types'
 
 export interface SaleItem {
@@ -624,6 +625,94 @@ export function getReorderSuggestions(): { productId: string; name: string; curr
      WHERE p.stock_level <= p.min_stock_level AND p.min_stock_level > 0
      ORDER BY (p.stock_level * 1.0 / p.min_stock_level) ASC`
   )
+}
+
+export function getMonthlySales(months: number = 12): { month: string; label: string; sales: number; transactions: number }[] {
+  const result: { month: string; label: string; sales: number; transactions: number }[] = []
+  const now = new Date()
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const year = d.getFullYear()
+    const mon = d.getMonth()
+    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
+    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
+    const end = new Date(year, mon + 1, 0)
+    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+    const row = get<{ sales: number; txns: number }>(
+      `SELECT COALESCE(SUM(total_amount), 0) as sales, COUNT(*) as txns
+       FROM transactions WHERE type = 'sale'
+       AND date(created_at) >= ? AND date(created_at) <= ?`,
+      [start, endStr]
+    )
+    result.push({
+      month: monthStr,
+      label: format(d, 'MMM yyyy'),
+      sales: row?.sales || 0,
+      transactions: row?.txns || 0,
+    })
+  }
+  return result
+}
+
+export function getMonthlyExpenses(months: number = 12): { month: string; expenses: number }[] {
+  const result: { month: string; expenses: number }[] = []
+  const now = new Date()
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const year = d.getFullYear()
+    const mon = d.getMonth()
+    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
+    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
+    const end = new Date(year, mon + 1, 0)
+    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+    const row = get<{ total: number }>(
+      `SELECT COALESCE(SUM(amount), 0) as total FROM expenses
+       WHERE date >= ? AND date <= ?`,
+      [start, endStr]
+    )
+    result.push({ month: monthStr, expenses: row?.total || 0 })
+  }
+  return result
+}
+
+export function getMonthlyCOGS(months: number = 12): { month: string; cogs: number }[] {
+  const result: { month: string; cogs: number }[] = []
+  const now = new Date()
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const year = d.getFullYear()
+    const mon = d.getMonth()
+    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
+    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
+    const end = new Date(year, mon + 1, 0)
+    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
+    const row = get<{ total: number }>(
+      `SELECT COALESCE(SUM(
+        CASE
+          WHEN r.unit = p.unit THEN ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+          WHEN r.unit IN ('g','kg') AND p.unit IN ('g','kg') THEN
+            CASE WHEN r.unit = 'kg' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+            * ti.quantity
+            * p.cost_price / CASE WHEN p.unit = 'kg' THEN 1000 ELSE 1 END
+            * (1 + r.waste_percent/100)
+          WHEN r.unit IN ('ml','l') AND p.unit IN ('ml','l') THEN
+            CASE WHEN r.unit = 'l' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+            * ti.quantity
+            * p.cost_price / CASE WHEN p.unit = 'l' THEN 1000 ELSE 1 END
+            * (1 + r.waste_percent/100)
+          ELSE ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+        END
+      ), 0) as total
+       FROM transaction_items ti
+       JOIN transactions t ON t.id = ti.transaction_id
+       JOIN recipes r ON r.menu_item_id = ti.menu_item_id
+       JOIN products p ON p.id = r.product_id
+       WHERE t.type = 'sale' AND date(t.created_at) >= ? AND date(t.created_at) <= ?`,
+      [start, endStr]
+    )
+    result.push({ month: monthStr, cogs: row?.total || 0 })
+  }
+  return result
 }
 
 export function getSalesByPaymentMethod(days: number = 7): { method: string; count: number; total: number }[] {
