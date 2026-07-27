@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import { query, run, get } from './db'
+import { convert } from '@/utils/units'
 import type { Product, MenuItem, InventoryLog, Expense, Supplier, SupplierProduct, WasteLog, Discount } from '@/types'
 
 export interface SaleItem {
@@ -55,14 +56,15 @@ export function processSale(saleItems: SaleItem[], userId: string, paymentMethod
         const product = get<Product>('SELECT * FROM products WHERE id = ?', [recipe.productId])
         if (!product) continue
 
+        const convertedQty = convert(recipe.quantityUsed, recipe.unit as any, product.unit)
         const wasteMultiplier = 1 + (recipe.wastePercent || 0) / 100
-        const deductionPerUnit = recipe.quantityUsed * wasteMultiplier
+        const deductionPerUnit = convertedQty * wasteMultiplier
         const totalDeduction = deductionPerUnit * item.quantity
         const stockBefore = product.stockLevel
 
         if (stockBefore < totalDeduction) {
           run('ROLLBACK')
-          return [{ productId: recipe.productId, productName: product.name, quantityDeducted: 0, stockBefore, stockAfter: stockBefore, unit: recipe.unit, success: false, error: `Insufficient stock: ${product.name} (have ${stockBefore}${recipe.unit}, need ${totalDeduction}${recipe.unit})` }]
+          return [{ productId: recipe.productId, productName: product.name, quantityDeducted: 0, stockBefore, stockAfter: stockBefore, unit: product.unit, success: false, error: `Insufficient stock: ${product.name} (have ${stockBefore}${product.unit}, need ${totalDeduction}${product.unit})` }]
         }
 
         const stockAfter = Math.round((stockBefore - totalDeduction) * 1000) / 1000
@@ -80,7 +82,7 @@ export function processSale(saleItems: SaleItem[], userId: string, paymentMethod
           quantityDeducted: totalDeduction,
           stockBefore,
           stockAfter,
-          unit: recipe.unit,
+          unit: product.unit,
           success: true,
         })
       }
@@ -520,7 +522,18 @@ export function getMenuEngineering(): { menuItemId: string; name: string; catego
             COALESCE(SUM(ti.total_price), 0) as totalRevenue,
             CASE WHEN SUM(ti.total_price) > 0
               THEN ((mi.sell_price - (
-                SELECT COALESCE(SUM(r.quantity_used * p.cost_price * (1 + r.waste_percent/100)), 0)
+                SELECT COALESCE(SUM(
+                  CASE
+                    WHEN r.unit = p.unit THEN r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+                    WHEN r.unit IN ('g','kg') AND p.unit IN ('g','kg') THEN
+                      CASE WHEN r.unit = 'kg' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                      * p.cost_price / CASE WHEN p.unit = 'kg' THEN 1000 ELSE 1 END * (1 + r.waste_percent/100)
+                    WHEN r.unit IN ('ml','l') AND p.unit IN ('ml','l') THEN
+                      CASE WHEN r.unit = 'l' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                      * p.cost_price / CASE WHEN p.unit = 'l' THEN 1000 ELSE 1 END * (1 + r.waste_percent/100)
+                    ELSE r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+                  END
+                ), 0)
                 FROM recipes r JOIN products p ON p.id = r.product_id
                 WHERE r.menu_item_id = mi.id
               )) / mi.sell_price) * 100

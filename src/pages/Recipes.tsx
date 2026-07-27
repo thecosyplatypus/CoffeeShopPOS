@@ -4,6 +4,7 @@ import { getProductStockLevels } from '@/services/inventory'
 import type { Product } from '@/types'
 import type { RecipeRow } from '@/services/inventory'
 import { formatCurrency } from '@/utils/format'
+import { convert } from '@/utils/units'
 import { ChefHat, Plus, Trash2, Pencil, X, Check } from 'lucide-react'
 
 const UNITS = ['g', 'ml', 'kg', 'l', 'pcs', 'shots'] as const
@@ -132,7 +133,8 @@ export function RecipesPage() {
   const costPerServing = (r: RecipeRow) => {
     const product = products.find(p => p.id === r.productId)
     if (!product) return 0
-    return product.costPrice * r.quantityUsed * (1 + r.wastePercent / 100)
+    const convertedQty = convert(r.quantityUsed, r.unit as any, product.unit)
+    return product.costPrice * convertedQty * (1 + r.wastePercent / 100)
   }
 
   const totalCost = recipes.reduce((sum, r) => sum + costPerServing(r), 0)
@@ -253,6 +255,11 @@ export function RecipesPage() {
                             <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{r.productName}</div>
                             <div className="text-xs text-gray-500">
                               {r.quantityUsed} {r.unit}
+                              {r.unit !== r.productUnit && (
+                                <span className="text-gray-400 ml-1">
+                                  (= {convert(r.quantityUsed, r.unit as any, r.productUnit as any)} {r.productUnit})
+                                </span>
+                              )}
                               {r.wastePercent > 0 && <span className="text-amber-600 ml-2">+{r.wastePercent}% waste</span>}
                               <span className="ml-2 text-gray-400">({formatCurrency(costPerServing(r))}/serve)</span>
                             </div>
@@ -274,7 +281,11 @@ export function RecipesPage() {
                     <div ref={addFormRef} className="card p-3 mt-2 border-coffee-200 bg-coffee-50/30">
                       <div className="text-xs text-gray-600 mb-2 font-medium">New Ingredient</div>
                       <div className="space-y-2">
-                        <select value={addProductId} onChange={e => setAddProductId(e.target.value)}
+                        <select value={addProductId} onChange={e => {
+                          setAddProductId(e.target.value)
+                          const prod = availableProducts.find(p => p.id === e.target.value)
+                          if (prod) setAddUnit(prod.unit)
+                        }}
                           className="input-base text-sm py-2.5">
                           {availableProducts.map(p => (
                             <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
