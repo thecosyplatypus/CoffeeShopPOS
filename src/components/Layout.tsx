@@ -122,7 +122,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto pb-16">{children}</main>
+        <main className="flex-1 overflow-auto pb-[calc(4rem+env(safe-area-inset-bottom,0px))]">{children}</main>
 
         {/* Bottom nav */}
         <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex items-stretch z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
