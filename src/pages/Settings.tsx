@@ -136,64 +136,62 @@ export function SettingsPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-3xl">
-      <h1 className="text-2xl font-bold text-white">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
-      {/* Store */}
-      <section className="bg-coffee-900 border border-coffee-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-white">Store</h2>
+      <section className="card p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Store</h2>
         <div>
-          <label className="text-coffee-400 text-sm block mb-1">Store Name</label>
+          <label className="text-gray-700 text-sm block mb-1 font-medium">Store Name</label>
           <input type="text" value={settings.storeName} onChange={(e) => settings.setStoreName(e.target.value)}
-            className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500" />
+            className="input-base" />
         </div>
       </section>
 
-      {/* Currency */}
-      <section className="bg-coffee-900 border border-coffee-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-white">Currency</h2>
+      <section className="card p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Currency</h2>
         <div className="flex flex-wrap gap-2">
           {CURRENCY_PRESETS.map((p) => (
             <button key={p.symbol} onClick={() => settings.setCurrency(p.symbol)}
-              className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors font-medium ${
                 settings.currency === p.symbol
-                  ? 'bg-coffee-700 border-coffee-500 text-white'
-                  : 'bg-coffee-950 border-coffee-800 text-coffee-400 hover:border-coffee-600'
+                  ? 'bg-coffee-600 border-coffee-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400'
               }`}>
               {p.label}
             </button>
           ))}
           <input type="text" value={settings.currency} onChange={(e) => settings.setCurrency(e.target.value)} maxLength={5}
             placeholder="Custom"
-            className="w-20 bg-coffee-950 border border-coffee-800 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500" />
+            className="input-base w-20" />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Symbol Position</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Symbol Position</label>
             <div className="flex gap-2">
               <button onClick={() => settings.setCurrencyPosition('before')}
-                className={`flex-1 py-2 rounded-lg text-sm border transition-colors ${
-                  settings.currencyPosition === 'before' ? 'bg-coffee-700 border-coffee-500 text-white' : 'bg-coffee-950 border-coffee-800 text-coffee-400'
+                className={`flex-1 py-2 rounded-lg text-sm border font-medium transition-colors ${
+                  settings.currencyPosition === 'before' ? 'bg-coffee-600 border-coffee-600 text-white' : 'bg-white border-gray-300 text-gray-600'
                 }`}>{settings.currency}10.00 (Before)</button>
               <button onClick={() => settings.setCurrencyPosition('after')}
-                className={`flex-1 py-2 rounded-lg text-sm border transition-colors ${
-                  settings.currencyPosition === 'after' ? 'bg-coffee-700 border-coffee-500 text-white' : 'bg-coffee-950 border-coffee-800 text-coffee-400'
+                className={`flex-1 py-2 rounded-lg text-sm border font-medium transition-colors ${
+                  settings.currencyPosition === 'after' ? 'bg-coffee-600 border-coffee-600 text-white' : 'bg-white border-gray-300 text-gray-600'
                 }`}>10.00{settings.currency} (After)</button>
             </div>
           </div>
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Decimal Places</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Decimal Places</label>
             <div className="flex gap-2">
               {[0, 2, 3].map((n) => (
                 <button key={n} onClick={() => settings.setDecimalPlaces(n)}
-                  className={`flex-1 py-2 rounded-lg text-sm border transition-colors ${
-                    settings.decimalPlaces === n ? 'bg-coffee-700 border-coffee-500 text-white' : 'bg-coffee-950 border-coffee-800 text-coffee-400'
+                  className={`flex-1 py-2 rounded-lg text-sm border font-medium transition-colors ${
+                    settings.decimalPlaces === n ? 'bg-coffee-600 border-coffee-600 text-white' : 'bg-white border-gray-300 text-gray-600'
                   }`}>{n}</button>
               ))}
             </div>
           </div>
         </div>
-        <div className="bg-coffee-950 rounded-lg px-3 py-2 text-coffee-300 text-sm">
-          Preview: <span className="text-white font-semibold">
+        <div className="bg-gray-50 rounded-lg px-3 py-2 text-gray-600 text-sm border border-gray-100">
+          Preview: <span className="text-gray-900 font-semibold">
             {settings.currencyPosition === 'before'
               ? `${settings.currency}${(12.5).toFixed(settings.decimalPlaces)}`
               : `${(12.5).toFixed(settings.decimalPlaces)}${settings.currency}`}
@@ -201,98 +199,96 @@ export function SettingsPage() {
         </div>
       </section>
 
-      {/* Tax & Receipt */}
-      <section className="bg-coffee-900 border border-coffee-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-white">Tax & Receipt</h2>
+      <section className="card p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Tax & Receipt</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Tax Rate (%)</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Tax Rate (%)</label>
             <input type="number" step="0.1" min="0" max="100" value={settings.taxRate}
               onChange={(e) => settings.setTaxRate(parseFloat(e.target.value) || 0)}
-              className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500" />
+              className="input-base" />
           </div>
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Receipt Auto-Hide (ms)</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Receipt Auto-Hide (ms)</label>
             <input type="number" step="1000" min="1000" value={settings.receiptAutoHideMs}
               onChange={(e) => settings.setReceiptAutoHideMs(parseInt(e.target.value) || 5000)}
-              className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500" />
+              className="input-base" />
           </div>
         </div>
       </section>
 
-      {/* Data Management */}
-      <section className="bg-coffee-900 border border-coffee-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-white">Data Management</h2>
-        <p className="text-coffee-400 text-sm">Export a JSON backup of all data, or import a previous backup to restore.</p>
+      <section className="card p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Data Management</h2>
+        <p className="text-gray-500 text-sm">Export a JSON backup of all data, or import a previous backup to restore.</p>
 
         <div className="flex gap-3">
           <button onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-coffee-700 hover:bg-coffee-600 text-white text-sm font-medium transition-colors">
+            className="btn-primary flex items-center gap-2">
             <Download size={16} /> Export Data
           </button>
           <button onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-coffee-700 hover:bg-coffee-600 text-white text-sm font-medium transition-colors">
+            className="btn-primary flex items-center gap-2">
             <Upload size={16} /> Import Data
           </button>
           <input ref={fileRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
         </div>
 
         {exportMsg && (
-          <div className="flex items-center gap-2 text-emerald-400 text-sm"><Check size={14} /> {exportMsg}</div>
+          <div className="flex items-center gap-2 text-emerald-600 text-sm"><Check size={14} /> {exportMsg}</div>
         )}
         {importMsg && (
-          <div className={`flex items-center gap-2 text-sm ${importMsg.type === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}>
+          <div className={`flex items-center gap-2 text-sm ${importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'}`}>
             {importMsg.type === 'ok' ? <Check size={14} /> : <X size={14} />} {importMsg.text}
           </div>
         )}
 
-        <div className="border-t border-coffee-800 pt-4 mt-4">
+        <div className="border-t border-gray-200 pt-4 mt-4">
           <button onClick={() => setShowReset(!showReset)}
-            className="flex items-center gap-2 text-red-400 hover:text-red-300 text-sm font-medium transition-colors">
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium transition-colors">
             <Trash2 size={14} /> Reset All Data
           </button>
         </div>
 
         {showReset && (
-          <div className="bg-red-900/20 border border-red-800 rounded-lg p-4 space-y-3">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
             {resetStep === 0 ? (
               <>
                 <div className="flex items-start gap-2">
-                  <AlertTriangle size={18} className="text-red-400 mt-0.5 shrink-0" />
+                  <AlertTriangle size={18} className="text-red-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-red-300 font-medium text-sm">This will permanently delete ALL data</p>
-                    <p className="text-red-400/80 text-xs mt-1">Menu items, products, recipes, transactions, expenses, and user accounts will be erased. This cannot be undone.</p>
+                    <p className="text-red-700 font-medium text-sm">This will permanently delete ALL data</p>
+                    <p className="text-red-600 text-xs mt-1">Menu items, products, recipes, transactions, expenses, and user accounts will be erased. This cannot be undone.</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-amber-400 text-xs">
+                <div className="flex items-center gap-2 text-amber-600 text-xs">
                   <AlertTriangle size={12} />
                   <span>Make sure you have exported a backup first.</span>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={cancelReset}
-                    className="px-3 py-1.5 rounded-lg border border-coffee-700 text-coffee-400 hover:bg-coffee-800 text-sm">Cancel</button>
+                    className="btn-secondary px-3 py-1.5 text-sm">Cancel</button>
                   <button onClick={handleReset}
-                    className="px-3 py-1.5 rounded-lg bg-red-800 hover:bg-red-700 text-white text-sm font-medium">I understand, continue</button>
+                    className="btn-danger px-3 py-1.5 text-sm">I understand, continue</button>
                 </div>
               </>
             ) : (
               <>
-                <p className="text-red-300 text-sm font-medium">Type <span className="font-mono bg-red-900/50 px-1 rounded">DELETE ALL DATA</span> to confirm:</p>
+                <p className="text-red-700 text-sm font-medium">Type <span className="font-mono bg-red-100 px-1 rounded">DELETE ALL DATA</span> to confirm:</p>
                 <input type="text" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)}
                   placeholder='Type "DELETE ALL DATA"'
-                  className="w-full bg-coffee-950 border border-red-800 rounded-lg px-3 py-2 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-red-500" />
+                  className="input-base border-red-300 focus:ring-red-500 focus:border-red-500" />
                 <div className="flex gap-2">
                   <button onClick={cancelReset}
-                    className="px-3 py-1.5 rounded-lg border border-coffee-700 text-coffee-400 hover:bg-coffee-800 text-sm">Cancel</button>
+                    className="btn-secondary px-3 py-1.5 text-sm">Cancel</button>
                   <button onClick={handleReset} disabled={resetConfirm !== 'DELETE ALL DATA'}
-                    className="px-3 py-1.5 rounded-lg bg-red-800 hover:bg-red-700 disabled:bg-red-900/50 disabled:text-red-400/50 text-white text-sm font-medium transition-colors">
+                    className="btn-danger px-3 py-1.5 text-sm disabled:bg-red-200 disabled:text-red-400">
                     Delete Everything
                   </button>
                 </div>
               </>
             )}
             {resetMsg && (
-              <div className={`flex items-center gap-2 text-sm ${resetMsg.type === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}>
+              <div className={`flex items-center gap-2 text-sm ${resetMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'}`}>
                 {resetMsg.type === 'ok' ? <Check size={14} /> : <X size={14} />} {resetMsg.text}
               </div>
             )}

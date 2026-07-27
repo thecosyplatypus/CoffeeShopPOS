@@ -46,33 +46,33 @@ export function SetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-coffee-950 flex items-center justify-center p-4">
-      <div className="bg-coffee-900 rounded-2xl p-8 w-full max-w-md shadow-2xl border border-coffee-800">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-modal border border-gray-200">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-16 h-16 bg-coffee-800 rounded-full flex items-center justify-center mb-3">
-            <Coffee size={32} className="text-coffee-400" />
+          <div className="w-16 h-16 bg-coffee-600 rounded-2xl flex items-center justify-center mb-3 shadow-sm">
+            <Coffee size={32} className="text-white" />
           </div>
-          <h1 className="text-xl font-bold text-white">Welcome to CoffeeShop POS</h1>
-          <p className="text-coffee-400 text-sm mt-1 text-center">
+          <h1 className="text-xl font-bold text-gray-900">Welcome to CoffeeShop POS</h1>
+          <p className="text-gray-500 text-sm mt-1 text-center">
             First-time setup — create the admin account
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Your Name</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Your Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Jane Doe"
-              className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2.5 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="input-base"
               autoFocus
             />
           </div>
 
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Choose a PIN</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Choose a PIN</label>
             <div className="relative">
               <input
                 type={showPin ? 'text' : 'password'}
@@ -85,12 +85,12 @@ export function SetupPage() {
                   setError('')
                 }}
                 placeholder="4-6 digit PIN"
-                className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2.5 pr-10 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                className="input-base pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-coffee-400 hover:text-coffee-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -98,7 +98,7 @@ export function SetupPage() {
           </div>
 
           <div>
-            <label className="text-coffee-400 text-sm block mb-1">Confirm PIN</label>
+            <label className="text-gray-700 text-sm block mb-1 font-medium">Confirm PIN</label>
             <input
               type={showPin ? 'text' : 'password'}
               inputMode="numeric"
@@ -110,18 +110,18 @@ export function SetupPage() {
                 setError('')
               }}
               placeholder="Re-enter your PIN"
-              className="w-full bg-coffee-950 border border-coffee-700 rounded-lg px-3 py-2.5 text-white placeholder-coffee-600 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="input-base"
             />
           </div>
 
           {error && (
-            <p className="text-red-400 text-sm text-center">{error}</p>
+            <p className="text-red-500 text-sm text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={!name.trim() || pin.length < 4 || pin !== confirmPin}
-            className="w-full bg-coffee-600 hover:bg-coffee-500 disabled:bg-coffee-800 disabled:text-coffee-600 text-white font-semibold py-3 rounded-lg transition-colors"
+            className="w-full bg-coffee-600 hover:bg-coffee-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3 rounded-lg transition-colors"
           >
             Create Admin Account
           </button>

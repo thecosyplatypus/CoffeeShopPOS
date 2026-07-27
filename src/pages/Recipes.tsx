@@ -111,31 +111,31 @@ export function RecipesPage() {
 
   return (
     <div className="flex h-full">
-      <div className="w-80 border-r border-coffee-800 bg-coffee-950 flex flex-col">
-        <div className="p-4 border-b border-coffee-800">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <ChefHat size={18} /> Recipes
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <ChefHat size={18} className="text-gray-400" /> Recipes
           </h2>
-          <p className="text-coffee-400 text-xs mt-1">{menuItems.length} menu items</p>
+          <p className="text-gray-500 text-xs mt-1">{menuItems.length} menu items</p>
         </div>
         <div className="flex-1 overflow-auto">
           {menuItems.map(mi => (
             <button
               key={mi.menuItemId}
               onClick={() => selectItem(mi.menuItemId)}
-              className={`w-full text-left px-4 py-3 border-b border-coffee-800/50 transition-colors ${
+              className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-colors ${
                 selectedId === mi.menuItemId
-                  ? 'bg-coffee-800 border-l-2 border-l-coffee-500'
-                  : 'hover:bg-coffee-900'
+                  ? 'bg-coffee-50 border-l-2 border-l-coffee-600'
+                  : 'hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-white">{mi.menuItemName}</div>
-                  <div className="text-xs text-coffee-500">{mi.category}</div>
+                  <div className="text-sm font-medium text-gray-900">{mi.menuItemName}</div>
+                  <div className="text-xs text-gray-500">{mi.category}</div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  mi.ingredients > 0 ? 'bg-coffee-700 text-coffee-300' : 'bg-coffee-900 text-coffee-600'
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  mi.ingredients > 0 ? 'bg-gray-100 text-gray-600' : 'bg-gray-50 text-gray-400'
                 }`}>
                   {mi.ingredients}
                 </span>
@@ -145,16 +145,16 @@ export function RecipesPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-gray-50">
         {selectedItem ? (
           <>
-            <div className="p-4 border-b border-coffee-800 flex items-center justify-between">
+            <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-white">{selectedItem.menuItemName}</h2>
-                <p className="text-coffee-400 text-sm">
+                <h2 className="text-lg font-semibold text-gray-900">{selectedItem.menuItemName}</h2>
+                <p className="text-gray-500 text-sm">
                   Sell price: {formatCurrency(selectedItem.sellPrice)}
                   {margin !== null && (
-                    <span className={`ml-3 ${margin >= 50 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    <span className={`ml-3 font-medium ${margin >= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
                       {margin.toFixed(0)}% margin
                     </span>
                   )}
@@ -163,59 +163,59 @@ export function RecipesPage() {
               <button
                 onClick={() => { setShowAdd(true); setAddProductId(availableProducts[0]?.id || ''); setError('') }}
                 disabled={availableProducts.length === 0}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-coffee-700 hover:bg-coffee-600 disabled:bg-coffee-800 disabled:text-coffee-600 text-white transition-colors flex items-center gap-1.5"
+                className="btn-primary flex items-center gap-1.5 disabled:bg-gray-200 disabled:text-gray-400"
               >
                 <Plus size={16} /> Add Ingredient
               </button>
             </div>
 
             {error && (
-              <div className="px-4 py-2 bg-red-900/30 border-b border-red-800">
-                <p className="text-red-300 text-sm">{error}</p>
+              <div className="px-4 py-2 bg-red-50 border-b border-red-200">
+                <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
 
             <div className="flex-1 overflow-auto p-4">
               {recipes.length === 0 && !showAdd ? (
-                <div className="text-center text-coffee-500 mt-12">
+                <div className="text-center text-gray-400 mt-12">
                   <ChefHat size={40} className="mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No ingredients defined</p>
-                  <p className="text-xs text-coffee-600 mt-1">Click "Add Ingredient" to link products to this item</p>
+                  <p className="text-xs text-gray-400 mt-1">Click "Add Ingredient" to link products to this item</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {recipes.map(r => (
-                    <div key={r.id} className="bg-coffee-900 border border-coffee-800 rounded-lg p-3">
+                    <div key={r.id} className="card p-3">
                       {editingId === r.id ? (
                         <div className="flex items-center gap-3">
-                          <div className="flex-1 text-sm font-medium text-white">{r.productName}</div>
+                          <div className="flex-1 text-sm font-medium text-gray-900">{r.productName}</div>
                           <input type="number" step="any" min="0" value={editQty} onChange={e => setEditQty(e.target.value)}
-                            className="w-20 bg-coffee-950 border border-coffee-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-coffee-500" />
+                            className="input-base w-20 text-sm" />
                           <select value={editUnit} onChange={e => setEditUnit(e.target.value)}
-                            className="bg-coffee-950 border border-coffee-700 rounded px-2 py-1 text-sm text-white focus:outline-none">
+                            className="input-base w-auto text-sm">
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
                           <input type="number" step="0.1" min="0" max="99" value={editWaste} onChange={e => setEditWaste(e.target.value)}
-                            className="w-16 bg-coffee-950 border border-coffee-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-coffee-500" />
-                          <span className="text-coffee-500 text-xs">%</span>
-                          <button onClick={() => saveEdit(r)} className="p-1 text-emerald-400 hover:text-emerald-300"><Check size={16} /></button>
-                          <button onClick={() => setEditingId(null)} className="p-1 text-coffee-500 hover:text-coffee-300"><X size={16} /></button>
+                            className="input-base w-16 text-sm" />
+                          <span className="text-gray-400 text-xs">%</span>
+                          <button onClick={() => saveEdit(r)} className="p-1 text-emerald-600 hover:text-emerald-700"><Check size={16} /></button>
+                          <button onClick={() => setEditingId(null)} className="p-1 text-gray-400 hover:text-gray-600"><X size={16} /></button>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="text-sm font-medium text-white">{r.productName}</div>
-                            <div className="text-xs text-coffee-500">
+                            <div className="text-sm font-medium text-gray-900">{r.productName}</div>
+                            <div className="text-xs text-gray-500">
                               {r.quantityUsed} {r.unit}
-                              {r.wastePercent > 0 && <span className="text-amber-500 ml-2">+{r.wastePercent}% waste</span>}
-                              <span className="ml-2 text-coffee-600">({formatCurrency(costPerServing(r))}/serve)</span>
+                              {r.wastePercent > 0 && <span className="text-amber-600 ml-2">+{r.wastePercent}% waste</span>}
+                              <span className="ml-2 text-gray-400">({formatCurrency(costPerServing(r))}/serve)</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-1">
-                            <button onClick={() => startEdit(r)} className="p-1.5 text-coffee-500 hover:text-coffee-300 transition-colors">
+                            <button onClick={() => startEdit(r)} className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors">
                               <Pencil size={14} />
                             </button>
-                            <button onClick={() => handleDelete(r.id)} className="p-1.5 text-coffee-500 hover:text-red-400 transition-colors">
+                            <button onClick={() => handleDelete(r.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
                               <Trash2 size={14} />
                             </button>
                           </div>
@@ -225,11 +225,11 @@ export function RecipesPage() {
                   ))}
 
                   {showAdd && (
-                    <div className="bg-coffee-800 border border-coffee-700 rounded-lg p-3 mt-2">
-                      <div className="text-xs text-coffee-400 mb-2 font-medium">New Ingredient</div>
+                    <div className="card p-3 mt-2 border-coffee-200 bg-coffee-50/30">
+                      <div className="text-xs text-gray-600 mb-2 font-medium">New Ingredient</div>
                       <div className="space-y-2">
                         <select value={addProductId} onChange={e => setAddProductId(e.target.value)}
-                          className="w-full bg-coffee-950 border border-coffee-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-coffee-500">
+                          className="input-base text-sm">
                           {availableProducts.map(p => (
                             <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
                           ))}
@@ -237,9 +237,9 @@ export function RecipesPage() {
                         <div className="flex items-center gap-2">
                           <input type="number" step="any" min="0" value={addQty} onChange={e => setAddQty(e.target.value)}
                             placeholder="Quantity"
-                            className="flex-1 bg-coffee-950 border border-coffee-700 rounded px-3 py-2 text-sm text-white placeholder-coffee-600 focus:outline-none focus:ring-1 focus:ring-coffee-500" />
+                            className="input-base flex-1 text-sm" />
                           <select value={addUnit} onChange={e => setAddUnit(e.target.value)}
-                            className="bg-coffee-950 border border-coffee-700 rounded px-2 py-2 text-sm text-white focus:outline-none">
+                            className="input-base w-auto text-sm">
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
                         </div>
@@ -247,17 +247,13 @@ export function RecipesPage() {
                           <div className="flex-1 flex items-center gap-1">
                             <input type="number" step="0.1" min="0" max="99" value={addWaste} onChange={e => setAddWaste(e.target.value)}
                               placeholder="0"
-                              className="w-20 bg-coffee-950 border border-coffee-700 rounded px-3 py-2 text-sm text-white placeholder-coffee-600 focus:outline-none focus:ring-1 focus:ring-coffee-500" />
-                            <span className="text-coffee-500 text-sm">% waste</span>
+                              className="input-base w-20 text-sm" />
+                            <span className="text-gray-400 text-sm">% waste</span>
                           </div>
                           <button onClick={handleAdd} disabled={!addProductId || !addQty}
-                            className="px-4 py-2 rounded-lg bg-coffee-600 hover:bg-coffee-500 disabled:bg-coffee-800 disabled:text-coffee-600 text-white text-sm font-medium transition-colors">
-                            Add
-                          </button>
+                            className="btn-primary px-4 text-sm">Add</button>
                           <button onClick={() => { setShowAdd(false); setError('') }}
-                            className="px-3 py-2 rounded-lg border border-coffee-700 text-coffee-400 hover:bg-coffee-800 text-sm transition-colors">
-                            Cancel
-                          </button>
+                            className="btn-secondary px-3 text-sm">Cancel</button>
                         </div>
                       </div>
                     </div>
@@ -267,22 +263,22 @@ export function RecipesPage() {
             </div>
 
             {recipes.length > 0 && (
-              <div className="p-4 border-t border-coffee-800 bg-coffee-950">
+              <div className="p-4 border-t border-gray-200 bg-white">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-coffee-400">Cost per serving</span>
-                  <span className="text-white font-semibold">{formatCurrency(totalCost)}</span>
+                  <span className="text-gray-500">Cost per serving</span>
+                  <span className="text-gray-900 font-semibold">{formatCurrency(totalCost)}</span>
                 </div>
                 {margin !== null && (
                   <div className="flex items-center justify-between text-sm mt-1">
-                    <span className="text-coffee-400">Profit margin</span>
-                    <span className={`font-semibold ${margin >= 50 ? 'text-emerald-400' : 'text-amber-400'}`}>{margin.toFixed(1)}%</span>
+                    <span className="text-gray-500">Profit margin</span>
+                    <span className={`font-semibold ${margin >= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>{margin.toFixed(1)}%</span>
                   </div>
                 )}
               </div>
             )}
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-coffee-500">
+          <div className="flex-1 flex items-center justify-center text-gray-400">
             <p>Select a menu item to view its recipe</p>
           </div>
         )}
