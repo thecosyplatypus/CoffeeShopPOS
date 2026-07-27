@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useSettingsStore } from '@/store/settings'
+import { useAppStore } from '@/store'
 import { getDb } from '@/services/db'
 import { Download, Upload, Check, X, AlertTriangle, Trash2 } from 'lucide-react'
 
@@ -114,10 +115,13 @@ export function SettingsPage() {
           db.run(`DELETE FROM ${table}`)
         }
         db.run('COMMIT')
-        setResetMsg({ type: 'ok', text: 'All data has been deleted. Refresh to start fresh.' })
+        useAppStore.getState().setUser(null)
+        useAppStore.getState().setNeedsSetup(true)
+        window.location.hash = ''
+        setResetMsg({ type: 'ok', text: 'All data deleted. Redirecting to setup...' })
         setResetStep(0)
         setResetConfirm('')
-        setTimeout(() => setShowReset(false), 2000)
+        setTimeout(() => setShowReset(false), 1000)
       } catch (err) {
         db.run('ROLLBACK')
         throw err
