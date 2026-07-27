@@ -43,13 +43,16 @@ export function ReportsPage() {
   const endDate = format(new Date(), 'yyyy-MM-dd')
 
   const loadSales = () => {
+    const rows = query<{ date: string; total: number }>(
+      `SELECT date(created_at) as date, COALESCE(SUM(total_amount), 0) as total
+       FROM transactions WHERE type = 'sale' AND date(created_at) >= ? AND date(created_at) <= ?
+       GROUP BY date(created_at) ORDER BY date(created_at)`,
+      [startDate, endDate]
+    )
+    const salesMap = new Map(rows.map(r => [r.date, r.total]))
     const data = Array.from({ length: days }, (_, i) => {
       const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd')
-      const result = get<{ total: number }>(
-        `SELECT COALESCE(SUM(total_amount), 0) as total FROM transactions WHERE type = 'sale' AND date(created_at) = ?`,
-        [date]
-      )
-      return { date: format(new Date(date), 'MMM dd'), sales: result?.total || 0 }
+      return { date: format(new Date(date), 'MMM dd'), sales: salesMap.get(date) || 0 }
     })
     setSalesData(data)
 
@@ -65,7 +68,9 @@ export function ReportsPage() {
     setTrendData(getSalesTrend(30).map(t => ({ date: format(new Date(t.date), 'MMM dd'), sales: t.sales, transactions: t.transactions })))
     setCogsByDay(getCOGSByDay(startDate, endDate))
     setTotalCOGS(getTotalCOGS(startDate, endDate))
+  }
 
+  const loadMonthly = () => {
     setMonthlySales(getMonthlySales(12))
     setMonthlyExpenses(getMonthlyExpenses(12))
     setMonthlyCOGS(getMonthlyCOGS(12))
@@ -80,6 +85,10 @@ export function ReportsPage() {
     loadSales()
     loadExpenses()
   }, [period])
+
+  useEffect(() => {
+    if (tab === 'monthly') loadMonthly()
+  }, [tab])
 
   const totalSales = salesData.reduce((s, d) => s + d.sales, 0)
   const avgDaily = totalSales / salesData.filter(d => d.sales > 0).length || 0

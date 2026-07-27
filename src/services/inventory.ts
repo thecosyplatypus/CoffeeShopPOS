@@ -356,34 +356,40 @@ export function getExpensesByCategory(startDate?: string, endDate?: string): { c
 }
 
 export function getCOGSByDay(startDate: string, endDate: string): { date: string; cogs: number }[] {
-  const rows = query<{ date: string; quantity: number; recipeUnit: string; productUnit: string; costPrice: number; wastePercent: number }>(
+  const rows = query<{ date: string; cogs: number }>(
     `SELECT date(t.created_at) as date,
-            ti.quantity as quantity,
-            r.unit as recipeUnit,
-            p.unit as productUnit,
-            p.cost_price as costPrice,
-            r.waste_percent as wastePercent
+            COALESCE(SUM(
+              CASE
+                WHEN r.unit = p.unit THEN ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+                WHEN r.unit IN ('g','kg') AND p.unit IN ('g','kg') THEN
+                  CASE WHEN r.unit = 'kg' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                  * ti.quantity
+                  * p.cost_price / CASE WHEN p.unit = 'kg' THEN 1000 ELSE 1 END
+                  * (1 + r.waste_percent/100)
+                WHEN r.unit IN ('ml','l') AND p.unit IN ('ml','l') THEN
+                  CASE WHEN r.unit = 'l' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                  * ti.quantity
+                  * p.cost_price / CASE WHEN p.unit = 'l' THEN 1000 ELSE 1 END
+                  * (1 + r.waste_percent/100)
+                ELSE ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+              END
+            ), 0) as cogs
      FROM transaction_items ti
      JOIN transactions t ON t.id = ti.transaction_id
      JOIN recipes r ON r.menu_item_id = ti.menu_item_id
      JOIN products p ON p.id = r.product_id
-     WHERE t.type = 'sale' AND date(t.created_at) >= ? AND date(t.created_at) <= ?`,
+     WHERE t.type = 'sale' AND date(t.created_at) >= ? AND date(t.created_at) <= ?
+     GROUP BY date(t.created_at) ORDER BY date(t.created_at)`,
     [startDate, endDate]
   )
 
-  const byDay = new Map<string, number>()
-  for (const row of rows) {
-    const convertedQty = convert(row.quantity * row.quantity, row.recipeUnit as any, row.productUnit as any)
-    const cost = convertedQty * row.costPrice * (1 + row.wastePercent / 100)
-    byDay.set(row.date, (byDay.get(row.date) || 0) + cost)
-  }
-
+  const cogsMap = new Map(rows.map(r => [r.date, r.cogs]))
   const result: { date: string; cogs: number }[] = []
   const start = new Date(startDate)
   const end = new Date(endDate)
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const key = d.toISOString().slice(0, 10)
-    result.push({ date: key, cogs: Math.round((byDay.get(key) || 0) * 100) / 100 })
+    result.push({ date: key, cogs: Math.round((cogsMap.get(key) || 0) * 100) / 100 })
   }
   return result
 }
@@ -628,89 +634,81 @@ export function getReorderSuggestions(): { productId: string; name: string; curr
 }
 
 export function getMonthlySales(months: number = 12): { month: string; label: string; sales: number; transactions: number }[] {
-  const result: { month: string; label: string; sales: number; transactions: number }[] = []
   const now = new Date()
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1)
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-01`
+  const rows = query<{ month: string; sales: number; txns: number }>(
+    `SELECT strftime('%Y-%m', created_at) as month,
+            COALESCE(SUM(total_amount), 0) as sales, COUNT(*) as txns
+     FROM transactions WHERE type = 'sale' AND date(created_at) >= ?
+     GROUP BY month ORDER BY month`,
+    [cutoffStr]
+  )
+  const result: { month: string; label: string; sales: number; transactions: number }[] = []
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const year = d.getFullYear()
-    const mon = d.getMonth()
-    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
-    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
-    const end = new Date(year, mon + 1, 0)
-    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
-    const row = get<{ sales: number; txns: number }>(
-      `SELECT COALESCE(SUM(total_amount), 0) as sales, COUNT(*) as txns
-       FROM transactions WHERE type = 'sale'
-       AND date(created_at) >= ? AND date(created_at) <= ?`,
-      [start, endStr]
-    )
-    result.push({
-      month: monthStr,
-      label: format(d, 'MMM yyyy'),
-      sales: row?.sales || 0,
-      transactions: row?.txns || 0,
-    })
+    const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const found = rows.find(r => r.month === monthStr)
+    result.push({ month: monthStr, label: format(d, 'MMM yyyy'), sales: found?.sales || 0, transactions: found?.txns || 0 })
   }
   return result
 }
 
 export function getMonthlyExpenses(months: number = 12): { month: string; expenses: number }[] {
-  const result: { month: string; expenses: number }[] = []
   const now = new Date()
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1)
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-01`
+  const rows = query<{ month: string; total: number }>(
+    `SELECT substr(date, 1, 7) as month, COALESCE(SUM(amount), 0) as total
+     FROM expenses WHERE date >= ? GROUP BY month ORDER BY month`,
+    [cutoffStr]
+  )
+  const result: { month: string; expenses: number }[] = []
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const year = d.getFullYear()
-    const mon = d.getMonth()
-    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
-    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
-    const end = new Date(year, mon + 1, 0)
-    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
-    const row = get<{ total: number }>(
-      `SELECT COALESCE(SUM(amount), 0) as total FROM expenses
-       WHERE date >= ? AND date <= ?`,
-      [start, endStr]
-    )
-    result.push({ month: monthStr, expenses: row?.total || 0 })
+    const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const found = rows.find(r => r.month === monthStr)
+    result.push({ month: monthStr, expenses: found?.total || 0 })
   }
   return result
 }
 
 export function getMonthlyCOGS(months: number = 12): { month: string; cogs: number }[] {
-  const result: { month: string; cogs: number }[] = []
   const now = new Date()
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1)
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-01`
+  const rows = query<{ month: string; total: number }>(
+    `SELECT strftime('%Y-%m', t.created_at) as month,
+            COALESCE(SUM(
+              CASE
+                WHEN r.unit = p.unit THEN ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+                WHEN r.unit IN ('g','kg') AND p.unit IN ('g','kg') THEN
+                  CASE WHEN r.unit = 'kg' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                  * ti.quantity
+                  * p.cost_price / CASE WHEN p.unit = 'kg' THEN 1000 ELSE 1 END
+                  * (1 + r.waste_percent/100)
+                WHEN r.unit IN ('ml','l') AND p.unit IN ('ml','l') THEN
+                  CASE WHEN r.unit = 'l' THEN r.quantity_used * 1000 ELSE r.quantity_used END
+                  * ti.quantity
+                  * p.cost_price / CASE WHEN p.unit = 'l' THEN 1000 ELSE 1 END
+                  * (1 + r.waste_percent/100)
+                ELSE ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
+              END
+            ), 0) as total
+     FROM transaction_items ti
+     JOIN transactions t ON t.id = ti.transaction_id
+     JOIN recipes r ON r.menu_item_id = ti.menu_item_id
+     JOIN products p ON p.id = r.product_id
+     WHERE t.type = 'sale' AND date(t.created_at) >= ?
+     GROUP BY month ORDER BY month`,
+    [cutoffStr]
+  )
+  const result: { month: string; cogs: number }[] = []
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const year = d.getFullYear()
-    const mon = d.getMonth()
-    const monthStr = `${year}-${String(mon + 1).padStart(2, '0')}`
-    const start = `${year}-${String(mon + 1).padStart(2, '0')}-01`
-    const end = new Date(year, mon + 1, 0)
-    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`
-    const row = get<{ total: number }>(
-      `SELECT COALESCE(SUM(
-        CASE
-          WHEN r.unit = p.unit THEN ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
-          WHEN r.unit IN ('g','kg') AND p.unit IN ('g','kg') THEN
-            CASE WHEN r.unit = 'kg' THEN r.quantity_used * 1000 ELSE r.quantity_used END
-            * ti.quantity
-            * p.cost_price / CASE WHEN p.unit = 'kg' THEN 1000 ELSE 1 END
-            * (1 + r.waste_percent/100)
-          WHEN r.unit IN ('ml','l') AND p.unit IN ('ml','l') THEN
-            CASE WHEN r.unit = 'l' THEN r.quantity_used * 1000 ELSE r.quantity_used END
-            * ti.quantity
-            * p.cost_price / CASE WHEN p.unit = 'l' THEN 1000 ELSE 1 END
-            * (1 + r.waste_percent/100)
-          ELSE ti.quantity * r.quantity_used * p.cost_price * (1 + r.waste_percent/100)
-        END
-      ), 0) as total
-       FROM transaction_items ti
-       JOIN transactions t ON t.id = ti.transaction_id
-       JOIN recipes r ON r.menu_item_id = ti.menu_item_id
-       JOIN products p ON p.id = r.product_id
-       WHERE t.type = 'sale' AND date(t.created_at) >= ? AND date(t.created_at) <= ?`,
-      [start, endStr]
-    )
-    result.push({ month: monthStr, cogs: row?.total || 0 })
+    const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const found = rows.find(r => r.month === monthStr)
+    result.push({ month: monthStr, cogs: found?.total || 0 })
   }
   return result
 }
