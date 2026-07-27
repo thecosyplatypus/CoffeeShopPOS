@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { getAllRecipes, getRecipesForMenuItem, addRecipe, updateRecipe, deleteRecipe } from '@/services/inventory'
 import { getProductStockLevels } from '@/services/inventory'
 import type { Product } from '@/types'
@@ -32,6 +32,13 @@ export function RecipesPage() {
   const [addWaste, setAddWaste] = useState('0')
   const [error, setError] = useState('')
   const [mobileShowDetail, setMobileShowDetail] = useState(false)
+  const addFormRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (showAdd && addFormRef.current) {
+      addFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [showAdd])
 
   const selectedItem = menuItems.find(m => m.menuItemId === selectedId)
 
@@ -175,7 +182,7 @@ export function RecipesPage() {
                 disabled={availableProducts.length === 0}
                 className="btn-primary flex items-center gap-1.5 disabled:bg-gray-200 disabled:text-gray-400 text-xs md:text-sm flex-shrink-0"
               >
-                <Plus size={16} /> <span className="hidden sm:inline">Add Ingredient</span>
+                <Plus size={16} /> Add
               </button>
             </div>
 
@@ -190,7 +197,7 @@ export function RecipesPage() {
                 <div className="text-center text-gray-400 mt-12">
                   <ChefHat size={40} className="mx-auto mb-2 opacity-50" />
                   <p className="text-xs md:text-sm">No ingredients defined</p>
-                  <p className="text-xs text-gray-400 mt-1">Click "Add Ingredient" to link products to this item</p>
+                  <p className="text-xs text-gray-400 mt-1">Tap the + Add button above to link products</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -235,11 +242,11 @@ export function RecipesPage() {
                   ))}
 
                   {showAdd && (
-                    <div className="card p-2 md:p-3 mt-2 border-coffee-200 bg-coffee-50/30">
+                    <div ref={addFormRef} className="card p-3 md:p-3 mt-2 border-coffee-200 bg-coffee-50/30">
                       <div className="text-xs text-gray-600 mb-2 font-medium">New Ingredient</div>
                       <div className="space-y-2">
                         <select value={addProductId} onChange={e => setAddProductId(e.target.value)}
-                          className="input-base text-xs md:text-sm">
+                          className="input-base text-sm py-2.5">
                           {availableProducts.map(p => (
                             <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
                           ))}
@@ -247,9 +254,9 @@ export function RecipesPage() {
                         <div className="flex items-center gap-2">
                           <input type="number" step="any" min="0" value={addQty} onChange={e => setAddQty(e.target.value)}
                             placeholder="Quantity"
-                            className="input-base flex-1 text-xs md:text-sm" />
+                            className="input-base flex-1 text-sm py-2.5" />
                           <select value={addUnit} onChange={e => setAddUnit(e.target.value)}
-                            className="input-base w-auto text-xs md:text-sm">
+                            className="input-base w-auto text-sm py-2.5">
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
                         </div>
@@ -257,13 +264,13 @@ export function RecipesPage() {
                           <div className="flex-1 flex items-center gap-1">
                             <input type="number" step="0.1" min="0" max="99" value={addWaste} onChange={e => setAddWaste(e.target.value)}
                               placeholder="0"
-                              className="input-base w-16 md:w-20 text-xs md:text-sm" />
-                            <span className="text-gray-400 text-xs md:text-sm">% waste</span>
+                              className="input-base w-20 text-sm py-2.5" />
+                            <span className="text-gray-400 text-xs">% waste</span>
                           </div>
                           <button onClick={handleAdd} disabled={!addProductId || !addQty}
-                            className="btn-primary px-4 text-xs md:text-sm">Add</button>
+                            className="btn-primary px-5 py-2.5 text-sm">Add</button>
                           <button onClick={() => { setShowAdd(false); setError('') }}
-                            className="btn-secondary px-3 text-xs md:text-sm">Cancel</button>
+                            className="btn-secondary px-4 py-2.5 text-sm">Cancel</button>
                         </div>
                       </div>
                     </div>
