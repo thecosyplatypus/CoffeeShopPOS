@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: { androidScheme: 'https' },
   plugins: {
-    SplashScreen: { launchShowDuration: 2000, backgroundColor: '#1a0e06' },
+    SplashScreen: { launchShowDuration: 2500, backgroundColor: '#1A0E06', androidScaleType: 'CENTER_CROP', showSpinner: false },
     PushNotifications: { presentationOptions: ['badge', 'sound', 'alert'] },
   },
   ios: { contentInset: 'always' },
