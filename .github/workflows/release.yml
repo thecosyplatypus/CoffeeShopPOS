@@ -106,7 +106,6 @@ jobs:
         continue-on-error: true
         with:
           path: artifacts/
-          merge-multiple: true
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -114,6 +113,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            artifacts/windows-build/*.exe
-            artifacts/mac-build/*.dmg
-            artifacts/android-build/*.apk
+            artifacts/windows-build/**/*.exe
+            artifacts/mac-build/**/*.dmg
+            artifacts/android-build/**/*.apk
