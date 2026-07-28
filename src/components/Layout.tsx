@@ -125,7 +125,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>{children}</main>
       </div>
 
       {/* Mobile drawer overlay */}
@@ -191,7 +191,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Desktop main content */}
-      <main className="flex-1 overflow-auto hidden md:block">{children}</main>
+      <main className="flex-1 overflow-auto hidden md:block" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>{children}</main>
     </div>
   )
 }
