@@ -79,11 +79,17 @@ export function App() {
     const handleBeforeUnload = () => { persistDatabase() }
     window.addEventListener('beforeunload', handleBeforeUnload)
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') { persistDatabase() }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       window.removeEventListener('hashchange', handleHash)
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
       window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [init])
 

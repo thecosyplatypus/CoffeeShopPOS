@@ -6,6 +6,44 @@ let _saveTimer: ReturnType<typeof setTimeout> | null = null
 let _dbDirty = false
 let _bulkMode = false
 
+const DB_STORAGE_KEY = 'coffeeshop-db'
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes.buffer
+}
+
+function saveToLocalStorage(data: ArrayBuffer): void {
+  try {
+    localStorage.setItem(DB_STORAGE_KEY, arrayBufferToBase64(data))
+  } catch (err) {
+    console.error('[DB] Failed to save database to localStorage:', err)
+  }
+}
+
+function loadFromLocalStorage(): ArrayBuffer | null {
+  try {
+    const raw = localStorage.getItem(DB_STORAGE_KEY)
+    if (!raw) return null
+    return base64ToArrayBuffer(raw)
+  } catch {
+    return null
+  }
+}
+
 function snakeToCamel(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {}
   for (const key of Object.keys(obj)) {
@@ -56,6 +94,18 @@ const SQL_PROMISE = (async () => {
   }
 })()
 
+function persistExport() {
+  if (!_db) return
+  const data = _db.export()
+  const buffer = data.buffer as ArrayBuffer
+  const electronAPI = (window as any).electronAPI
+  if (electronAPI?.saveDatabase) {
+    electronAPI.saveDatabase(buffer)
+  } else {
+    saveToLocalStorage(buffer)
+  }
+}
+
 function scheduleSave() {
   if (_bulkMode) return
   _dbDirty = true
@@ -64,21 +114,13 @@ function scheduleSave() {
     _saveTimer = null
     if (!_db || !_dbDirty) return
     _dbDirty = false
-    const electronAPI = (window as any).electronAPI
-    if (electronAPI?.saveDatabase) {
-      const data = _db.export()
-      electronAPI.saveDatabase(data.buffer)
-    }
+    persistExport()
   }, 500)
 }
 
 async function saveNow(): Promise<void> {
   if (!_db) return
-  const electronAPI = (window as any).electronAPI
-  if (electronAPI?.saveDatabase) {
-    const data = _db.export()
-    await electronAPI.saveDatabase(data.buffer)
-  }
+  persistExport()
 }
 
 export async function initDatabase(): Promise<void> {
@@ -88,6 +130,8 @@ export async function initDatabase(): Promise<void> {
   let savedData: ArrayBuffer | null = null
   if (electronAPI?.loadDatabase) {
     savedData = await electronAPI.loadDatabase()
+  } else {
+    savedData = loadFromLocalStorage()
   }
 
   if (savedData) {

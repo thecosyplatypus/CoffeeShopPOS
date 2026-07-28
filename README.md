@@ -1,6 +1,6 @@
 # CoffeeShop POS
 
-A full-featured point-of-sale application for coffee shops, built with React, TypeScript, and SQLite. Runs as a web app, Electron desktop app, or Capacitor mobile app.
+A full-featured point-of-sale application for coffee shops, built with React, TypeScript, and SQLite. Runs as a web app, Electron desktop app (Windows/macOS/Linux), or Capacitor mobile app (Android/iOS).
 
 ## Features
 
@@ -19,46 +19,127 @@ A full-featured point-of-sale application for coffee shops, built with React, Ty
 - **Frontend:** React 18, TypeScript, Tailwind CSS, Zustand, Recharts
 - **Database:** SQLite via sql.js (WASM)
 - **Desktop:** Electron 43
-- **Mobile:** Capacitor 6 (iOS/Android)
+- **Mobile:** Capacitor 8 (Android)
 - **Build:** Vite 8
 
-## Getting Started
+---
+
+## Download & Install
+
+### Android
+
+**Option A — Pre-built APK (recommended)**
+1. Download the latest `.apk` or `.aab` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+2. On your Android device, open the downloaded file
+3. If prompted, allow installation from unknown sources
+4. Open the app and complete the first-time setup
+
+**Option B — Build from source**
+```bash
+# Prerequisites: Node.js 18+, Android Studio, Android SDK
+npm install
+npm run build
+npx cap sync android
+npx cap open android
+```
+Then in Android Studio, build an APK or AAB (`Build > Build Bundle(s) / APK(s)`).
+
+---
+
+### macOS
+
+**Option A — Pre-built DMG (recommended)**
+1. Download the latest `.dmg` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+2. Open the DMG and drag the app to your Applications folder
+3. On first launch, right-click the app and select **Open** (Gatekeeper warning)
+
+**Option B — Build from source**
+```bash
+npm install
+npm run electron:build:mac
+```
+The DMG will be in the `release/` folder.
+
+---
+
+### Windows
+
+**Option A — Pre-built installer (recommended)**
+1. Download the latest `.exe` or `.msi` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+2. Run the installer
+3. Launch from the Start Menu or desktop shortcut
+
+**Option B — Build from source**
+```bash
+npm install
+npm run electron:build:win
+```
+The installer will be in the `release/` folder.
+
+---
+
+### Web Browser (any platform)
 
 ```bash
 npm install
 npm run dev
 ```
+Open `http://localhost:5173` in your browser.
 
-### Desktop (Electron)
+---
+
+## Usage
+
+### First-Time Setup
+1. Launch the app — the **Setup** screen appears
+2. Enter your name and create a 4-6 digit PIN (numbers only)
+3. Tap **Create Admin Account** — the demo menu is seeded automatically
+4. Log in with your PIN
+
+### Navigation
+- **Desktop**: Use the side panel on the left to switch between POS, Dashboard, Inventory, Reports, Recipes, Admin, and Settings
+- **Mobile**: Tap the hamburger icon (☰) in the top-left corner to open the navigation drawer
+
+### Taking an Order (POS)
+1. Tap menu items to add them to the cart
+2. Adjust quantities with +/− buttons
+3. Select a payment method (Cash / Card / Mobile)
+4. Optionally enter a discount code
+5. Tap **Charge** to complete the sale
+
+### Managing Staff
+- Go to **Admin** to add, remove, or change staff roles
+- Staff log in with their own PIN
+
+---
+
+## Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run in browser (hot reload)
+npm run dev
+
+# Desktop (Electron with hot reload)
 npm run electron:dev
-```
 
-### Build
-
-```bash
-# Web
+# Build for production
 npm run build
-
-# Desktop (Windows)
-npm run electron:build:win
-
-# Desktop (macOS)
-npm run electron:build:mac
-
-# Desktop (Linux)
-npm run electron:build:linux
 ```
 
-### Mobile (Capacitor)
+### Platform Build Commands
 
-```bash
-npm run build
-npm run capacitor:sync
-npm run capacitor:open:ios
-npm run capacitor:open:android
-```
+| Platform | Command | Output |
+|----------|---------|--------|
+| Web | `npm run build` | `dist/` |
+| Windows (desktop) | `npm run electron:build:win` | `release/*.exe` |
+| macOS (desktop) | `npm run electron:build:mac` | `release/*.dmg` |
+| Linux (desktop) | `npm run electron:build:linux` | `release/*.AppImage` |
+| Android | `npm run build && npx cap sync android` | `android/app/build/` |
+
+---
 
 ## Project Structure
 

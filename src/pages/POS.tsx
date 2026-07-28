@@ -284,7 +284,7 @@ export function POSPage() {
         {/* Floating cart bar */}
         {cart.length > 0 && (
           <button onClick={() => setCartOpen(true)}
-            className="fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px)+4px)] inset-x-3 bg-coffee-600 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-lg z-30 active:bg-coffee-700 transition-colors"
+            className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+8px)] inset-x-3 bg-coffee-600 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-lg z-30 active:bg-coffee-700 transition-colors"
             style={{ height: '56px' }}>
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-coffee-500 flex items-center justify-center text-xs font-bold">{cartItemCount}</div>
@@ -302,7 +302,7 @@ export function POSPage() {
           <>
             <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setCartOpen(false)} />
             <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl z-50 flex flex-col"
-              style={{ maxHeight: '85vh' }}>
+              style={{ maxHeight: '85vh', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-1">
                 <div className="w-10 h-1 rounded-full bg-gray-300" />
