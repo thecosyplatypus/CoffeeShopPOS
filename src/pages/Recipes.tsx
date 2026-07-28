@@ -320,7 +320,7 @@ export function RecipesPage() {
             </div>
 
             {recipes.length > 0 && (
-              <div className="p-3 md:p-4 border-t border-gray-200 bg-white">
+              <div className="p-3 md:p-4 border-t border-gray-200 bg-white" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
                 <div className="flex items-center justify-between text-xs md:text-sm">
                   <span className="text-gray-500">Cost per serving</span>
                   <span className="text-gray-900 font-semibold">{formatCurrency(totalCost)}</span>
