@@ -1,6 +1,6 @@
 # CoffeeShop POS
 
-A full-featured point-of-sale application for coffee shops, built with React, TypeScript, and SQLite. Runs as a web app, Electron desktop app (Windows/macOS/Linux), or Capacitor mobile app (Android/iOS).
+A full-featured point-of-sale application for coffee shops, built with React, TypeScript, and SQLite. Runs as a web app, Electron desktop app (Windows/macOS/Linux), or Capacitor mobile app (Android).
 
 ## Features
 
@@ -29,7 +29,7 @@ A full-featured point-of-sale application for coffee shops, built with React, Ty
 ### Android
 
 **Option A — Pre-built APK (recommended)**
-1. Download the latest `.apk` or `.aab` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+1. Download the latest `.apk` or `.aab` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
 2. On your Android device, open the downloaded file
 3. If prompted, allow installation from unknown sources
 4. Open the app and complete the first-time setup
@@ -49,7 +49,7 @@ Then in Android Studio, build an APK or AAB (`Build > Build Bundle(s) / APK(s)`)
 ### macOS
 
 **Option A — Pre-built DMG (recommended)**
-1. Download the latest `.dmg` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+1. Download the latest `.dmg` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
 2. Open the DMG and drag the app to your Applications folder
 3. On first launch, right-click the app and select **Open** (Gatekeeper warning)
 
@@ -65,7 +65,7 @@ The DMG will be in the `release/` folder.
 ### Windows
 
 **Option A — Pre-built installer (recommended)**
-1. Download the latest `.exe` or `.msi` from the [Releases](https://github.com/anomalyco/CoffeeShopPOS/releases) page
+1. Download the latest `.exe` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
 2. Run the installer
 3. Launch from the Start Menu or desktop shortcut
 
