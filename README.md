@@ -1,143 +1,155 @@
 # CoffeeShop POS
 
-A full-featured point-of-sale application for coffee shops, built with React, TypeScript, and SQLite. Runs as a web app, Electron desktop app (Windows/macOS/Linux), or Capacitor mobile app (Android).
+A point-of-sale app for coffee shops. Runs as a web app, desktop app (Windows/macOS), or Android app.
 
-## Features
+## Download Pre-Built Apps
 
-- **Point of Sale** — Category browsing, cart management, discount codes, tax calculation, cash/card/mobile payment
-- **Inventory Management** — Product tracking, stock adjustments with reason logging, cost/margin analysis
-- **Recipes** — Ingredient tracking with waste percentages, cost-per-serving calculations
-- **Reports** — Sales analytics, expense tracking, menu engineering matrix (Star/Workhorse/Puzzle/Dog), trend charts, CSV export
-- **Staff Management** — PIN-based login, role-based access (Barista, Manager, Owner)
-- **Dashboard** — Best sellers, peak hours, employee sales, payment breakdowns, stock alerts
-- **Settings** — Store config, currency, tax rate, data export/import, reset
-- **Cloud Sync** — Configurable REST API sync with retry logic and auto-sync
-- **Offline-First** — SQLite via WebAssembly, works entirely offline
+Go to [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) and download the file for your platform:
 
-## Tech Stack
-
-- **Frontend:** React 18, TypeScript, Tailwind CSS, Zustand, Recharts
-- **Database:** SQLite via sql.js (WASM)
-- **Desktop:** Electron 43
-- **Mobile:** Capacitor 8 (Android)
-- **Build:** Vite 8
+| Platform | File | What to do |
+|----------|------|------------|
+| **Windows** | `.exe` | Run the installer, launch from Start Menu |
+| **macOS** | `.dmg` | Open it, drag the app to Applications, right-click > Open on first launch |
+| **Android** | `.apk` | Open on your phone, allow "unknown sources" if prompted |
+| **Web** | — | No download needed, run from source (see below) |
 
 ---
 
-## Download & Install
+## Build From Source
 
-### Android
+### What You Need (all platforms)
 
-**Option A — Pre-built APK (recommended)**
-1. Download the latest `.apk` or `.aab` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
-2. On your Android device, open the downloaded file
-3. If prompted, allow installation from unknown sources
-4. Open the app and complete the first-time setup
+1. **[Git](https://git-scm.com/downloads)** — to download the code
+2. **[Node.js 20+](https://nodejs.org/)** — the app runs on Node. Download the LTS version.
 
-**Option B — Build from source**
+Verify they're installed by opening a terminal (Command Prompt, PowerShell, or Terminal) and running:
+
 ```bash
-# Prerequisites: Node.js 18+, Android Studio, Android SDK
-npm install
-npm run build
-npx cap sync android
-npx cap open android
+git --version
+node --version
 ```
-Then in Android Studio, build an APK or AAB (`Build > Build Bundle(s) / APK(s)`).
+
+Both should print a version number. If not, install them and restart your terminal.
 
 ---
 
-### macOS
+### Step 1 — Download the code
 
-**Option A — Pre-built DMG (recommended)**
-1. Download the latest `.dmg` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
-2. Open the DMG and drag the app to your Applications folder
-3. On first launch, right-click the app and select **Open** (Gatekeeper warning)
-
-**Option B — Build from source**
 ```bash
-npm install
-npm run electron:build:mac
+git clone https://github.com/thecosyplatypus/CoffeeShopPOS.git
+cd CoffeeShopPOS
 ```
-The DMG will be in the `release/` folder.
+
+### Step 2 — Install dependencies
+
+```bash
+npm install --legacy-peer-deps
+```
+
+This downloads everything the app needs. It takes a minute the first time.
 
 ---
 
-### Windows
+## Running on Each Platform
 
-**Option A — Pre-built installer (recommended)**
-1. Download the latest `.exe` from the [Releases](https://github.com/thecosyplatypus/CoffeeShopPOS/releases) page
-2. Run the installer
-3. Launch from the Start Menu or desktop shortcut
+### Run in a Web Browser (Windows, macOS, Linux)
 
-**Option B — Build from source**
+No extra tools needed.
+
 ```bash
-npm install
+npm run dev
+```
+
+Open **http://localhost:5173** in your browser. The app reloads automatically when you change code.
+
+---
+
+### Run as a Windows Desktop App
+
+No extra tools needed (Electron is included in the dependencies).
+
+**Development (with auto-reload):**
+
+```bash
+npm run electron:dev
+```
+
+**Build an installer (.exe) to share with others:**
+
+```bash
 npm run electron:build:win
 ```
-The installer will be in the `release/` folder.
+
+The `.exe` installer will be in the `release/` folder.
 
 ---
 
-### Web Browser (any platform)
+### Run as a macOS Desktop App
+
+No extra tools needed.
+
+**Development (with auto-reload):**
 
 ```bash
-npm install
-npm run dev
-```
-Open `http://localhost:5173` in your browser.
-
----
-
-## Usage
-
-### First-Time Setup
-1. Launch the app — the **Setup** screen appears
-2. Enter your name and create a 4-6 digit PIN (numbers only)
-3. Tap **Create Admin Account** — the demo menu is seeded automatically
-4. Log in with your PIN
-
-### Navigation
-- **Desktop**: Use the side panel on the left to switch between POS, Dashboard, Inventory, Reports, Recipes, Admin, and Settings
-- **Mobile**: Tap the hamburger icon (☰) in the top-left corner to open the navigation drawer
-
-### Taking an Order (POS)
-1. Tap menu items to add them to the cart
-2. Adjust quantities with +/− buttons
-3. Select a payment method (Cash / Card / Mobile)
-4. Optionally enter a discount code
-5. Tap **Charge** to complete the sale
-
-### Managing Staff
-- Go to **Admin** to add, remove, or change staff roles
-- Staff log in with their own PIN
-
----
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run in browser (hot reload)
-npm run dev
-
-# Desktop (Electron with hot reload)
 npm run electron:dev
-
-# Build for production
-npm run build
 ```
 
-### Platform Build Commands
+**Build a .dmg to share with others:**
 
-| Platform | Command | Output |
-|----------|---------|--------|
-| Web | `npm run build` | `dist/` |
-| Windows (desktop) | `npm run electron:build:win` | `release/*.exe` |
-| macOS (desktop) | `npm run electron:build:mac` | `release/*.dmg` |
-| Linux (desktop) | `npm run electron:build:linux` | `release/*.AppImage` |
-| Android | `npm run build && npx cap sync android` | `android/app/build/` |
+```bash
+npm run electron:build:mac
+```
+
+The `.dmg` will be in the `release/` folder.
+
+> **Note:** On first launch, macOS may block the app. Right-click it and select **Open** to bypass Gatekeeper.
+
+---
+
+### Run on Android
+
+**Extra tools needed:**
+1. **[Android Studio](https://developer.android.com/studio)** — the official Android development environment
+2. **Java 21** — comes bundled with Android Studio
+
+**Steps:**
+
+1. Build the web app:
+   ```bash
+   npm run build
+   ```
+
+2. Copy the built files into the Android project:
+   ```bash
+   npx cap sync android
+   ```
+
+3. Open the project in Android Studio:
+   ```bash
+   npx cap open android
+   ```
+
+4. In Android Studio, wait for the project to sync (this may take a few minutes the first time).
+
+5. **To run on your phone:**
+   - Connect your Android phone via USB with developer mode enabled
+   - Click the green **Run** button (or press Shift+F10)
+   - Select your phone from the device list
+
+6. **To build an APK to share:**
+   - Go to **Build > Build Bundle(s) / APK(s) > Build APK(s)**
+   - The APK will be at `android/app/build/outputs/apk/debug/app-debug.apk`
+
+**How to enable developer mode on Android:** Go to **Settings > About Phone** and tap **Build Number** 7 times. Then go to **Settings > Developer Options** and enable **USB Debugging**.
+
+---
+
+## First-Time Setup (in the app)
+
+1. Open the app — you'll see the **Setup** screen
+2. Enter your name and create a 4-6 digit PIN
+3. Click **Create Admin Account** — a demo menu is loaded automatically
+4. Log in with your PIN
 
 ---
 
@@ -145,14 +157,15 @@ npm run build
 
 ```
 src/
-├── components/    # Layout shell
-├── pages/         # POS, Dashboard, Inventory, Recipes, Reports, Admin, Settings, Login, Setup
-├── services/      # Database, auth, inventory logic, cloud sync
-├── store/         # Zustand state management
-├── types/         # TypeScript interfaces
-├── utils/         # Formatters
-└── db/            # SQLite schema
-electron/          # Electron main/preload processes
-capacitor/         # Capacitor configuration
-public/            # WASM binaries for SQLite
+  components/    Layout, navigation
+  pages/         POS, Dashboard, Inventory, Recipes, Reports, Admin, Settings, Login, Setup
+  services/      Database, auth, inventory logic, cloud sync
+  store/         State management (Zustand)
+  db/            SQLite schema
+electron/        Desktop app (Electron)
+android/         Android app (Capacitor)
 ```
+
+## License
+
+Private — see repository owner for access.
