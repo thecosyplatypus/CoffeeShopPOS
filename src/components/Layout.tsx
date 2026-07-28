@@ -103,7 +103,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile layout */}
       <div className="flex flex-col flex-1 md:hidden">
         {/* Mobile header */}
-        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
+        <header className="bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0" style={{ paddingTop: 'env(safe-area-inset-top, 24px)', minHeight: '3.5rem' }}>
           <div className="flex items-center gap-2">
             <button onClick={() => setMobileDrawerOpen(true)}
               className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
